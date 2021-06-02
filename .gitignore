@@ -1,0 +1,11 @@
+.venv
+.vscode
+.idea
+*.swp
+dist
+__pycache__
+
+# Coverage
+.coverage
+coverage.xml
+htmlcov
