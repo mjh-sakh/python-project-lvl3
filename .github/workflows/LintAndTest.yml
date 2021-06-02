@@ -1,0 +1,31 @@
+name: linter
+
+on: push
+
+jobs:
+  lint:
+    name: Lint and test code base
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name: install poetry
+        run: pip install poetry
+        
+      - name: set up poetry
+        run: make install
+        
+      - name: Run Wemake Python Styleguide
+        run: make lint
+
+      - name: Run tests
+        run: make test
+      
+      - name: create coverage report for CodeClimate
+        uses: paambaati/codeclimate-action@v2.7.5
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CODE_CLIMATE_ID }}
+        with:
+          coverageCommand: make coverage
