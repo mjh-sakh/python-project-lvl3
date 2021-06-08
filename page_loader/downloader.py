@@ -15,7 +15,7 @@ def download(url: str, folder: str) -> str:
     trimmed_url = url[len(scheme):]
     trimmed_url = trimmed_url[:-1] if trimmed_url[-1] == '/' else trimmed_url
     ending = re.findall(r'\W\w+$', trimmed_url)[0]
-    if ending in ('.htm', '.html'):
+    if ending in {'.htm', '.html'}:
         trimmed_url = trimmed_url[:-len(ending)]
     transformed_url = re.sub(r'\W', '-', trimmed_url)
     if not os.path.isdir(folder):
