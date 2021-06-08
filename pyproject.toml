@@ -12,6 +12,9 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Education"
 ]
+packages = [
+    {include = "page_loader"},
+]
 
 repository = "https://github.com/mjh-sakh/python-project-lvl3"
 
@@ -31,3 +34,4 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
+page_loader = 'page_loader.scripts.page_loader:main'
