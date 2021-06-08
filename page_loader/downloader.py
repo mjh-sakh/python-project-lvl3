@@ -18,6 +18,8 @@ def download(url: str, folder: str) -> str:
     if ending in ('.htm', '.html'):
         trimmed_url = trimmed_url[:-len(ending)]
     transformed_url = re.sub(r'\W', '-', trimmed_url)
+    if not os.path.isdir(folder):
+        os.mkdir(folder)
     file_name = f'{transformed_url}.html'
     file_path = os.path.join(folder, file_name)
     with open(file_path, 'w') as f:
