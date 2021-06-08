@@ -46,6 +46,14 @@ class TestClassBlackBoxTests:
         #     with open(locate(expected_file)) as file2:
         #         assert check_if_same(file1, file2)
 
+    @pytest.mark.parametrize("page_address, sub_folder", [
+        ("https://sheldonbrown.com/harris/bikes.html", "test"),
+    ])
+    def test_download_creates_folder(self, temp_folder, sub_folder, page_address):
+        save_folder = os.path.join(temp_folder, sub_folder)
+        file_path = download(page_address, save_folder)
+        assert os.path.isdir(save_folder)
+
 
 class TestClassWhiteBoxTests:
     pass
