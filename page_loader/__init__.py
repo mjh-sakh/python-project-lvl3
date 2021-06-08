@@ -1,2 +1,2 @@
 # flake8: noqa
-from downloader import download
+from page_loader.downloader import download
