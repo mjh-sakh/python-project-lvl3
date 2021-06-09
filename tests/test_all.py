@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import tempfile
 from typing import TextIO
 
@@ -57,11 +58,11 @@ class TestClassBlackBoxTests:
     @pytest.mark.parametrize("page_address", [
         ("https://sheldonbrown.com/harris/bikes.html"),
     ])
-    def test_download_defaults_to_cwd(self, page_address):
+    def test_download_defaults_to_cwd(self, temp_folder, page_address):
+        os.chdir(temp_folder)
         file_path = download(page_address)
-        folder_path, file_name = os.path.split(file_path)
-        assert folder_path == os.getcwd()
-        os.remove(file_path)
+        folder_path = os.path.dirname(file_path)
+        assert Path(folder_path).resolve() == Path(temp_folder).resolve()
 
 
 class TestClassWhiteBoxTests:
