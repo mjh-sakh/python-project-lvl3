@@ -30,6 +30,7 @@ def check_if_same(file1: TextIO, file2: TextIO):
 @pytest.fixture
 def temp_folder():
     with tempfile.TemporaryDirectory() as temp_folder:
+        os.chdir(temp_folder)
         yield temp_folder
 
 
@@ -59,7 +60,6 @@ class TestClassBlackBoxTests:
         ("https://sheldonbrown.com/harris/bikes.html"),
     ])
     def test_download_defaults_to_cwd(self, temp_folder, page_address):
-        os.chdir(temp_folder)
         file_path = download(page_address)
         folder_path = os.path.dirname(file_path)
         assert Path(folder_path).resolve() == Path(temp_folder).resolve()
