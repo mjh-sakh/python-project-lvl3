@@ -21,6 +21,7 @@ repository = "https://github.com/mjh-sakh/python-project-lvl3"
 [tool.poetry.dependencies]
 python = "^3.7"
 requests = "^2.25.1"
+beautifulsoup4 = "^4.9.3"
 
 [tool.poetry.dev-dependencies]
 wemake-python-styleguide = "^0.15.2"
