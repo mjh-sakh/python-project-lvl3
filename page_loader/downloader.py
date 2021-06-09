@@ -4,7 +4,9 @@ import re
 import requests
 
 
-def download(url: str, folder: str) -> str:
+def download(url: str, folder: str = None) -> str:
+    if folder is None:
+        folder = os.getcwd()
     page = requests.get(url)
     if page.status_code != 200:
         raise Exception(

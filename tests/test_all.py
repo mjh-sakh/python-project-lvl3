@@ -54,6 +54,15 @@ class TestClassBlackBoxTests:
         file_path = download(page_address, save_folder)
         assert os.path.isdir(save_folder)
 
+    @pytest.mark.parametrize("page_address", [
+        ("https://sheldonbrown.com/harris/bikes.html"),
+    ])
+    def test_download_defaults_to_cwd(self, page_address):
+        file_path = download(page_address)
+        folder_path, file_name = os.path.split(file_path)
+        assert folder_path == os.getcwd()
+        os.remove(file_path)
+
 
 class TestClassWhiteBoxTests:
     pass
