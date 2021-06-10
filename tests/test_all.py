@@ -35,11 +35,11 @@ def temp_folder():
 
 
 class TestClassBlackBoxTests:
-    @pytest.mark.parametrize("page_address, expected_file", [
+    @pytest.mark.parametrize("page_url, expected_file", [
         ("https://sheldonbrown.com/harris/bikes.html", "sheldonbrown-com-harris-bikes.html"),
     ])
-    def test_download(self, temp_folder, page_address, expected_file):
-        file_path = download(page_address, temp_folder)
+    def test_download(self, temp_folder, page_url, expected_file):
+        file_path = download(page_url, temp_folder)
         assert os.path.isfile(file_path)
         folder_path, file_name = os.path.split(file_path)
         assert folder_path == temp_folder
@@ -48,19 +48,19 @@ class TestClassBlackBoxTests:
         #     with open(locate(expected_file)) as file2:
         #         assert check_if_same(file1, file2)
 
-    @pytest.mark.parametrize("page_address, sub_folder", [
+    @pytest.mark.parametrize("page_url, sub_folder", [
         ("https://sheldonbrown.com/harris/bikes.html", "test"),
     ])
-    def test_download_creates_folder(self, temp_folder, sub_folder, page_address):
+    def test_download_creates_folder(self, temp_folder, sub_folder, page_url):
         save_folder = os.path.join(temp_folder, sub_folder)
-        file_path = download(page_address, save_folder)
+        file_path = download(page_url, save_folder)
         assert os.path.isdir(save_folder)
 
-    @pytest.mark.parametrize("page_address", [
+    @pytest.mark.parametrize("page_url", [
         ("https://sheldonbrown.com/harris/bikes.html"),
     ])
-    def test_download_defaults_to_cwd(self, temp_folder, page_address):
-        file_path = download(page_address)
+    def test_download_defaults_to_cwd(self, temp_folder, page_url):
+        file_path = download(page_url)
         folder_path = os.path.dirname(file_path)
         assert Path(folder_path).resolve() == Path(temp_folder).resolve()
 
