@@ -20,7 +20,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
     file_path = os.path.join(folder, file_name)
     with open(file_path, 'w') as f:  # noqa: WPS111
         f.write(page.text)
-    soup = BeautifulSoup(page.content)
+    soup = BeautifulSoup(page.content, features='html.parser')
     img_folder = make_name(url, '_files')
     img_folder = os.path.join(folder, img_folder)
     for img in soup.find_all('img'):
