@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import tempfile
+from pathlib import Path
 from typing import TextIO
 
 import pytest
@@ -66,6 +67,18 @@ class TestClassBlackBoxTests:
         folder_path = os.path.dirname(file_path)
         assert Path(folder_path).resolve() == Path(temp_folder).resolve()
 
+    @pytest.mark.parametrize("page_url, core_name, expected_names", [
+        ("https://sheldonbrown.com/harris/bikes.html", "sheldonbrown-com-harris-bikes",
+         "sheldonbrown-com-harris-bikes-files.txt"),
+    ])
+    def test_download_saves_imgs(self, temp_folder, page_url, core_name, expected_names):
+        file_path = download(page_url)
+        files_folder_name = f'{core_name}_files'
+        assert os.path.isdir(files_folder_name)
+        saved_names_list = os.listdir(files_folder_name)
+        with open(locate(expected_names)) as f:
+            expected_names_list = [line.rstrip() for line in f]
+        assert sorted(saved_names_list) == sorted(expected_names_list)
 
 class TestClassWhiteBoxTests:
     pass
