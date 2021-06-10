@@ -7,12 +7,13 @@ import pytest
 
 from page_loader import download
 
+PROJECT_FOLDER = os.getcwd()
 TEST_FOLDER = "tests"
 FIXTURES_FOLDER = "fixtures"
 
 
 def locate(file_name):
-    file_path = os.path.join(TEST_FOLDER, FIXTURES_FOLDER, file_name)
+    file_path = os.path.join(PROJECT_FOLDER, TEST_FOLDER, FIXTURES_FOLDER, file_name)
     return file_path
 
 
@@ -32,6 +33,7 @@ def temp_folder():
     with tempfile.TemporaryDirectory() as temp_folder:
         os.chdir(temp_folder)
         yield temp_folder
+        os.chdir(PROJECT_FOLDER)
 
 
 class TestClassBlackBoxTests:
