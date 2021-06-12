@@ -9,6 +9,12 @@ from bs4 import BeautifulSoup  # type: ignore
 def download(url: str, folder: Optional[str] = None) -> str:
     if folder is None:
         folder = os.getcwd()
+    if not os.path.exists(folder):
+        os.mkdir(folder)
+    working_in_sub_folder_flag = False
+    if folder is not None:
+        os.chdir(folder)
+        working_in_sub_folder_flag = True
     page_code = download_content(url, '', return_text=True)
     soup = BeautifulSoup(page_code, features='html.parser')
     img_folder = make_name(url, '_files')
@@ -18,7 +24,9 @@ def download(url: str, folder: Optional[str] = None) -> str:
         img_content = download_content(img_src, url)
         img['src'] = save_file(img_content, img_folder, img_file_name)
     file_name = make_name(url, '.html')
-    file_path = save_file(soup.encode(), folder, file_name)
+    file_path = save_file(soup.encode(), os.getcwd(), file_name)
+    if working_in_sub_folder_flag:
+        os.chdir('..')
     return file_path
 
 
