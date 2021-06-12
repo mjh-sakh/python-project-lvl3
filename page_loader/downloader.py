@@ -49,7 +49,7 @@ def is_local(link: str, local_link: str) -> bool:
     if not parse.netloc:
         return True
     parse_local = urlparse(local_link)
-    if parse.netloc == parse_local.netloc:
+    if parse.netloc in {parse_local.netloc, f'www.{parse_local.netloc}'}:
         return True
     return False
 
