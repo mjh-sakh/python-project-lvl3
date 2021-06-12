@@ -30,7 +30,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
 
 
 def is_absolute(link: str) -> bool:
-    return True if re.search('//', link) else False
+    return bool(re.search('//', link))
 
 
 def save_file(file_url: str, page_url: str, folder: str) -> None:
@@ -39,7 +39,7 @@ def save_file(file_url: str, page_url: str, folder: str) -> None:
     if is_absolute(file_url):
         absolute_file_url = file_url
     else:
-        absolute_file_url = fr'{page_url}/{file_url}'
+        absolute_file_url = f'{page_url}/{file_url}'
     downloaded_file = requests.get(absolute_file_url)
     file_name = make_name(file_url)
     file_path = os.path.join(folder, file_name)
