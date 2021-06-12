@@ -1,9 +1,16 @@
 import os
 import re
 from typing import Union, Optional
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
+
+DOWNLOAD_OBJECTS = {
+    'img': ('src', True),
+    'link': ('href', False),
+    'script': ('src', False),
+}
 
 
 def download(url: str, folder: Optional[str] = None) -> str:
@@ -15,14 +22,21 @@ def download(url: str, folder: Optional[str] = None) -> str:
     if folder is not None:
         os.chdir(folder)
         working_in_sub_folder_flag = True
-    page_code = download_content(url, '', return_text=True)
+    page = requests.get(url)
+    page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
-    img_folder = make_name(url, '_files')
-    for img in soup.find_all('img'):
-        img_src = img['src']
-        img_file_name = make_name(img_src)
-        img_content = download_content(img_src, url)
-        img['src'] = save_file(img_content, img_folder, img_file_name)
+    downloads_folder = make_name(url, '_files')
+    for download_object, (key, download_always) in DOWNLOAD_OBJECTS.items():
+        for item in soup.find_all(download_object):
+            item_link = item.get(key)
+            if item_link and (download_always or is_local(item_link, url)):
+                item_file_name = make_name(item_link)
+                try:
+                    item_content = download_content(item_link, url)
+                except Exception:
+                    pass
+                else:
+                    item[key] = save_file(item_content, downloads_folder, item_file_name)
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
@@ -30,23 +44,31 @@ def download(url: str, folder: Optional[str] = None) -> str:
     return file_path
 
 
+def is_local(link: str, local_link: str) -> bool:
+    parse = urlparse(link)
+    if not parse.netloc:
+        return True
+    parse_local = urlparse(local_link)
+    if parse.netloc in {parse_local.netloc, f'www.{parse_local.netloc}'}:
+        return True
+    return False
+
+
 def is_absolute(link: str) -> bool:
     return bool(re.search('//', link))
 
 
-def download_content(file_url: str, page_url: str, return_text: bool = False) -> bytes:
+def download_content(file_url: str, page_url: str) -> bytes:
     if is_absolute(file_url):
         absolute_file_url = file_url
     else:
         absolute_file_url = f'{page_url}/{file_url}'
     response = requests.get(absolute_file_url)
-    if response.status_code != 200:
-        raise Exception(
-            f'Error on request. Returned status code: {response.status_code}',
-        )
-    if return_text:
-        return response.text
-    return response.content
+    if response.ok:
+        return response.content
+    raise Exception(
+        f'Error on request. Returned status code: {response.status_code}',
+    )
 
 
 def save_file(content: bytes, folder: str, file_name: str) -> str:
@@ -89,7 +111,7 @@ def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
         ending = group1 if group1 else group2
         trimmed_url = trimmed_url[:-len(ending)]
     else:
-        ending = ''
+        ending = '.html'
     transformed_url = re.sub(r'[\W_]', '-', trimmed_url)
     if not set_extension:
         return transformed_url

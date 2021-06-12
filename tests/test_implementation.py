@@ -1,6 +1,6 @@
 import pytest
 
-from page_loader.downloader import is_absolute, make_name
+from page_loader.downloader import is_absolute, make_name, is_local
 
 
 @pytest.mark.parametrize("tested_link, result", [
@@ -32,3 +32,7 @@ def test_is_absolute(tested_link, result):
 ])
 def test_make_name(raw, extension, result):
     assert make_name(raw, extension) == result
+
+
+def test_is_local():
+    assert is_local('http://www.site.ru/file.ext', 'http://site.ru') is True
