@@ -39,6 +39,7 @@ def test_save_file(temp_folder, page_url, file_url):
     ('site/one.ext', False, 'site-one'),
     ('site/one.ext', True, 'site-one.ext'),
     ('site/one.ext', '.text', 'site-one.text'),
+    ('abc123_-!zzz', False, 'abc123---zzz'),
 ])
 def test_make_name(raw, extension, result):
     assert make_name(raw, extension) == result
