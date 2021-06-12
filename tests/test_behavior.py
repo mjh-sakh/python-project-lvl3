@@ -74,10 +74,12 @@ def test_download_defaults_to_cwd(temp_folder, page_url):
     ("http://hpmor.com", "hpmor-com", "hpmor-com-files.txt"),  # relative links
 ])
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names):
-    file_path = download(page_url)
+    subfolder = 'subfolder'
+    file_path = download(page_url, subfolder)
     files_folder_name = f'{core_name}_files'
-    assert os.path.isdir(files_folder_name)
-    saved_names_list = os.listdir(files_folder_name)
+    full_path = os.path.join(subfolder, files_folder_name)
+    assert os.path.isdir(full_path)
+    saved_names_list = os.listdir(full_path)
     with open(locate(expected_names)) as f:
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
