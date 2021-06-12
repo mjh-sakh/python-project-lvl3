@@ -20,7 +20,8 @@ def download(url: str, folder: Optional[str] = None) -> str:
     if folder is not None:
         os.chdir(folder)
         working_in_sub_folder_flag = True
-    page_code = download_content(url, '', return_text=True)
+    page = requests.get(url)
+    page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
     for download_object, (key, download_always) in DOWNLOAD_OBJECTS.items():
@@ -51,19 +52,17 @@ def is_absolute(link: str) -> bool:
     return bool(re.search('//', link))
 
 
-def download_content(file_url: str, page_url: str, return_text: bool = False) -> bytes:
+def download_content(file_url: str, page_url: str) -> bytes:
     if is_absolute(file_url):
         absolute_file_url = file_url
     else:
         absolute_file_url = f'{page_url}/{file_url}'
     response = requests.get(absolute_file_url)
-    if response.status_code != 200:
-        raise Exception(
-            f'Error on request. Returned status code: {response.status_code}',
-        )
-    if return_text:
-        return response.text
-    return response.content
+    if response.ok:
+        return response.content
+    raise Exception(
+        f'Error on request. Returned status code: {response.status_code}',
+    )
 
 
 def save_file(content: bytes, folder: str, file_name: str) -> str:
