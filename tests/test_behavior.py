@@ -82,4 +82,3 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names):
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
 
-# TODO: test that links changed in downloaded html

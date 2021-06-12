@@ -9,23 +9,16 @@ from bs4 import BeautifulSoup  # type: ignore
 def download(url: str, folder: Optional[str] = None) -> str:
     if folder is None:
         folder = os.getcwd()
-    page = requests.get(url)
-    if page.status_code != 200:
-        raise Exception(
-            f'Error on page request. Page status returned: {page.status_code}',
-        )
-    if not os.path.isdir(folder):
-        os.mkdir(folder)
-    file_name = make_name(url, '.html')
-    file_path = os.path.join(folder, file_name)
-    with open(file_path, 'w') as f:  # noqa: WPS111
-        f.write(page.text)
-    soup = BeautifulSoup(page.content, features='html.parser')
+    page_code = download_content(url, '', return_text=True)
+    soup = BeautifulSoup(page_code, features='html.parser')
     img_folder = make_name(url, '_files')
-    img_folder = os.path.join(folder, img_folder)
     for img in soup.find_all('img'):
         img_src = img['src']
-        save_file(img_src, url, img_folder)
+        img_file_name = make_name(img_src)
+        img_content = download_content(img_src, url)
+        img['src'] = save_file(img_content, img_folder, img_file_name)
+    file_name = make_name(url, '.html')
+    file_path = save_file(bytes(page_code, 'UTF-8'), folder, file_name)
     return file_path
 
 
@@ -33,18 +26,28 @@ def is_absolute(link: str) -> bool:
     return bool(re.search('//', link))
 
 
-def save_file(file_url: str, page_url: str, folder: str) -> None:
-    if not os.path.exists(folder):
-        os.mkdir(folder)
+def download_content(file_url: str, page_url: str, return_text: bool = False) -> bytes:
     if is_absolute(file_url):
         absolute_file_url = file_url
     else:
         absolute_file_url = f'{page_url}/{file_url}'
-    downloaded_file = requests.get(absolute_file_url)
-    file_name = make_name(file_url)
+    response = requests.get(absolute_file_url)
+    if response.status_code != 200:
+        raise Exception(
+            f'Error on request. Returned status code: {response.status_code}',
+        )
+    if return_text:
+        return response.text
+    return response.content
+
+
+def save_file(content: bytes, folder: str, file_name: str) -> str:
+    if not os.path.exists(folder):
+        os.mkdir(folder)
     file_path = os.path.join(folder, file_name)
     with open(file_path, 'wb') as f:  # noqa: WPS111
-        f.write(downloaded_file.content)
+        f.write(content)
+    return file_path
 
 
 def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
