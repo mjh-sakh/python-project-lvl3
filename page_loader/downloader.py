@@ -62,11 +62,19 @@ def make_name(url: str, extension: Union[bool, str] = True) -> str:
     Example: https://example.com/file.jpg
     Coverts to: example-com-file.jpg
     """
-    scheme = re.findall('.+//', url)[0]
-    trimmed_url = url[len(scheme):]
+    scheme = re.match('.+//', url)
+    trimmed_url = url[len(scheme[0]):] if scheme else url
     trimmed_url = trimmed_url[1:] if trimmed_url[0] == '/' else trimmed_url
     trimmed_url = trimmed_url[:-1] if trimmed_url[-1] == '/' else trimmed_url
-    ending = re.findall(r'\W\w+$', trimmed_url)[0]
+    """
+    Regex explanation: two conditions with OR
+    first: (?<=//).+/\w+(\.\w+)$
+    if there // in the line, consider only (\.\w+) template if there is '/' between it and //
+    or second: ^(?:(?!//).)*?(\.\w+)$
+    if there is no // in the line, take \.\w+ template at the end of the line
+    """
+    match = re.search(r'(?<=//).+/\w+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', trimmed_url)
+    ending = match[0][0] if match else ''
     trimmed_url = trimmed_url[:-len(ending)]
     transformed_url = re.sub(r'\W', '-', trimmed_url)
     if not extension:
