@@ -10,5 +10,8 @@ Educational project to build a program that saves web-page locally.
 
 # Usage
 
-## Save file using CLI
+## Save web page using CLI
 [![CLI interface](https://img.youtube.com/vi/n_H4j65Eqag/0.jpg)](https://www.youtube.com/watch?v=n_H4j65Eqag "Step 1")]
+
+## Images are saved together with the page
+[![CLI interface](https://img.youtube.com/vi/FYoYhYGYymE/0.jpg)](https://youtu.be/FYoYhYGYymE "Step 2")]
