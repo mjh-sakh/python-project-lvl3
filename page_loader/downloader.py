@@ -18,7 +18,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
         img_content = download_content(img_src, url)
         img['src'] = save_file(img_content, img_folder, img_file_name)
     file_name = make_name(url, '.html')
-    file_path = save_file(bytes(page_code, 'UTF-8'), folder, file_name)
+    file_path = save_file(soup.encode(), folder, file_name)
     return file_path
 
 
