@@ -8,6 +8,8 @@ from bs4 import BeautifulSoup  # type: ignore
 
 DOWNLOAD_OBJECTS = {
     'img': ('src', True),
+    'link': ('href', False),
+    'script': ('src', False),
 }
 
 
@@ -29,8 +31,12 @@ def download(url: str, folder: Optional[str] = None) -> str:
             item_link = item.get(key)
             if item_link and (download_always or is_local(item_link, url)):
                 item_file_name = make_name(item_link)
-                item_content = download_content(item_link, url)
-                item[key] = save_file(item_content, downloads_folder, item_file_name)
+                try:
+                    item_content = download_content(item_link, url)
+                except Exception:
+                    pass
+                else:
+                    item[key] = save_file(item_content, downloads_folder, item_file_name)
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
@@ -105,7 +111,7 @@ def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
         ending = group1 if group1 else group2
         trimmed_url = trimmed_url[:-len(ending)]
     else:
-        ending = ''
+        ending = '.html'
     transformed_url = re.sub(r'[\W_]', '-', trimmed_url)
     if not set_extension:
         return transformed_url
