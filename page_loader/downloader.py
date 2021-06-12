@@ -47,7 +47,7 @@ def save_file(file_url: str, page_url: str, folder: str) -> None:
         f.write(downloaded_file.content)
 
 
-def make_name(url: str, extension: Union[bool, str] = True) -> str:
+def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
     """
     Make file name out of url.
 
@@ -77,8 +77,8 @@ def make_name(url: str, extension: Union[bool, str] = True) -> str:
     ending = match[0][0] if match else ''
     trimmed_url = trimmed_url[:-len(ending)]
     transformed_url = re.sub(r'\W', '-', trimmed_url)
-    if not extension:
+    if not set_extension:
         return transformed_url
-    if extension is True:
+    if set_extension is True:
         return f'{transformed_url}{ending}'
-    return f'{transformed_url}{extension}'
+    return f'{transformed_url}{set_extension}'
