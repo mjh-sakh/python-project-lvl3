@@ -43,7 +43,7 @@ def test_download(temp_folder, page_url, expected_file):
     file_path = download(page_url, temp_folder)
     assert os.path.isfile(file_path)
     folder_path, file_name = os.path.split(file_path)
-    assert folder_path == temp_folder
+    assert Path(folder_path).resolve() == Path(temp_folder).resolve()
     assert file_name == expected_file
     # with open(file_path) as file1:
     #     with open(locate(expected_file)) as file2:
