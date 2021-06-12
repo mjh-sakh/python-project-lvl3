@@ -66,17 +66,20 @@ def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
     trimmed_url = url[len(scheme[0]):] if scheme else url
     trimmed_url = trimmed_url[1:] if trimmed_url[0] == '/' else trimmed_url
     trimmed_url = trimmed_url[:-1] if trimmed_url[-1] == '/' else trimmed_url
-    """
-    Regex explanation: two conditions with OR
-    first: (?<=//).+/\w+(\.\w+)$
-    if there // in the line, consider only (\.\w+) template if there is '/' between it and //
-    or second: ^(?:(?!//).)*?(\.\w+)$
-    if there is no // in the line, take \.\w+ template at the end of the line
-    """
-    match = re.search(r'(?<=//).+/\w+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', trimmed_url)
-    ending = match[0][0] if match else ''
-    trimmed_url = trimmed_url[:-len(ending)]
-    transformed_url = re.sub(r'\W', '-', trimmed_url)
+
+    # Regex explanation: two conditions with OR
+    # first: (?<=//).+/\S+(\.\w+)$
+    # if there is // in the line, consider (\.\w+) template only if there is '/' between it and //
+    # or second: ^(?:(?!//).)*?(\.\w+)$
+    # if there is no // in the line, take (\.\w+) template at the end of the line
+    match = re.search(r'(?<=//).+/\S+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', url)  # noqa: E501
+    if match:
+        group1, group2 = match.groups()
+        ending = group1 if group1 else group2
+        trimmed_url = trimmed_url[:-len(ending)]
+    else:
+        ending = ''
+    transformed_url = re.sub(r'[\W_]', '-', trimmed_url)
     if not set_extension:
         return transformed_url
     if set_extension is True:
