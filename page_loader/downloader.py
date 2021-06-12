@@ -1,9 +1,14 @@
 import os
 import re
 from typing import Union, Optional
+from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
+
+DOWNLOAD_OBJECTS = {
+    'img': ('src', True),
+}
 
 
 def download(url: str, folder: Optional[str] = None) -> str:
@@ -17,17 +22,29 @@ def download(url: str, folder: Optional[str] = None) -> str:
         working_in_sub_folder_flag = True
     page_code = download_content(url, '', return_text=True)
     soup = BeautifulSoup(page_code, features='html.parser')
-    img_folder = make_name(url, '_files')
-    for img in soup.find_all('img'):
-        img_src = img['src']
-        img_file_name = make_name(img_src)
-        img_content = download_content(img_src, url)
-        img['src'] = save_file(img_content, img_folder, img_file_name)
+    downloads_folder = make_name(url, '_files')
+    for download_object, (key, download_always) in DOWNLOAD_OBJECTS.items():
+        for item in soup.find_all(download_object):
+            item_link = item.get(key)
+            if item_link and (download_always or is_local(item_link, url)):
+                item_file_name = make_name(item_link)
+                item_content = download_content(item_link, url)
+                item[key] = save_file(item_content, downloads_folder, item_file_name)
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
         os.chdir('..')
     return file_path
+
+
+def is_local(link: str, local_link: str) -> bool:
+    parse = urlparse(link)
+    if not parse.netloc:
+        return True
+    parse_local = urlparse(local_link)
+    if parse.netloc == parse_local.netloc:
+        return True
+    return False
 
 
 def is_absolute(link: str) -> bool:
