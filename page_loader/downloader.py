@@ -26,17 +26,17 @@ def download(url: str, folder: Optional[str] = None) -> str:
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
-    for download_object, (key, download_always) in DOWNLOAD_OBJECTS.items():
-        for item in soup.find_all(download_object):
-            item_link = item.get(key)
-            if item_link and (download_always or is_local(item_link, url)):
+    for download_object, (key, always_download) in DOWNLOAD_OBJECTS.items():
+        for object_ in soup.find_all(download_object):
+            item_link = object_.get(key)
+            if item_link and (always_download or is_local(item_link, url)):
                 item_file_name = make_name(item_link)
                 try:
                     item_content = download_content(item_link, url)
                 except Exception:
                     pass
                 else:
-                    item[key] = save_file(item_content, downloads_folder, item_file_name)
+                    object_[key] = save_file(item_content, downloads_folder, item_file_name)
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
@@ -49,9 +49,7 @@ def is_local(link: str, local_link: str) -> bool:
     if not parse.netloc:
         return True
     parse_local = urlparse(local_link)
-    if parse.netloc in {parse_local.netloc, f'www.{parse_local.netloc}'}:
-        return True
-    return False
+    return parse.netloc in {parse_local.netloc, f'www.{parse_local.netloc}'}
 
 
 def is_absolute(link: str) -> bool:
