@@ -15,3 +15,8 @@ Educational project to build a program that saves web-page locally.
 
 ## Images are saved together with the page
 [![CLI interface](https://img.youtube.com/vi/FYoYhYGYymE/0.jpg)](https://youtu.be/FYoYhYGYymE "Step 2")]
+
+
+## Local links and scripts are saved too
+[![CLI interface](https://img.youtube.com/vi/bR_jbQzpwEs/0.jpg)](https://youtu.be/bR_jbQzpwEs "Step 3")]
+
