@@ -78,7 +78,11 @@ def save_file(content: bytes, folder: str, file_name: str) -> str:
     return file_path
 
 
-def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
+def make_name(
+    url: str,
+    set_extension: Union[bool, str] = True,
+    default_extension: str = '.html',
+) -> str:
     """
     Make file name out of url.
 
@@ -87,8 +91,9 @@ def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
 
     Add extension options:
         True: default, keeps original extension
+              or adds default if there was no
         False: returns name without extension
-        str: adds specified extension
+        str: adds specified extension, replaces existing
 
     Example: https://example.com/file.jpg
     Coverts to: example-com-file.jpg
@@ -109,7 +114,7 @@ def make_name(url: str, set_extension: Union[bool, str] = True) -> str:
         ending = group1 if group1 else group2
         trimmed_url = trimmed_url[:-len(ending)]
     else:
-        ending = '.html'
+        ending = default_extension
     transformed_url = re.sub(r'[\W_]', '-', trimmed_url)
     if not set_extension:
         return transformed_url
