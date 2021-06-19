@@ -1,3 +1,4 @@
+import logging
 import os
 import tempfile
 from pathlib import Path
@@ -6,6 +7,7 @@ from typing import TextIO
 import pytest
 
 from page_loader import download
+from page_loader.downloader import SYSTEM_EXIT_CODES
 
 PROJECT_FOLDER = os.getcwd()
 TEST_FOLDER = "tests"
@@ -73,7 +75,8 @@ def test_download_defaults_to_cwd(temp_folder, page_url):
      "sheldonbrown-com-harris-bikes-files.txt"),  # absolute links
     ("http://hpmor.com", "hpmor-com", "hpmor-com-files.txt"),  # relative links
 ])
-def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names):
+def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog):
+    caplog.set_level(logging.DEBUG)
     subfolder = 'subfolder'
     file_path = download(page_url, subfolder)
     files_folder_name = f'{core_name}_files'
@@ -84,3 +87,28 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names):
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
 
+
+@pytest.mark.parametrize("url, folder, expected_ex_type, expected_ex_args", [
+    ('abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_url'],)),
+    ('ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_response'],)),
+    ('httppp://ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_unknown'],)),
+])
+def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_ex_args):
+    with pytest.raises(expected_ex_type) as ex_info:
+        download(url, folder)
+    assert ex_info.value.args == expected_ex_args
+
+
+@pytest.mark.parametrize("url, folder, expected_log_message", [
+    ('abracadabra', None, 'Invalid url'),
+    ('httppp://ya.ru/abracadabra', None, 'Some other error arose'),
+    ('ya.ru', None, 'Looks that schema is missed'),
+    ('http://ya.ru/abracadabra', None, 'Was not able to load page. Aborted.'),
+])
+def test_download_writes_log(temp_folder, url, folder, expected_log_message, caplog):
+    try:
+        download(url, folder)
+    except BaseException:
+        pass
+    finally:
+        assert expected_log_message in caplog.text
