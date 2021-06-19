@@ -6,6 +6,13 @@ from urllib.parse import urlparse
 import requests
 from bs4 import BeautifulSoup  # type: ignore
 
+SYSTEM_EXIT_CODES = {
+    'connection_bad_url': 10,
+    'connection_bad_response': 11,
+    'connection_unknown': 19,
+}
+
+
 DOWNLOAD_OBJECTS = {
     'img': ('src', True),
     'link': ('href', False),
