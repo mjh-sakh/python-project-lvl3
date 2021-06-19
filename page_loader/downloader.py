@@ -1,5 +1,7 @@
 import os
 import re
+import logging
+import sys
 from typing import Union, Optional
 from urllib.parse import urlparse
 
@@ -21,15 +23,36 @@ DOWNLOAD_OBJECTS = {
 
 
 def download(url: str, folder: Optional[str] = None) -> str:
+    logging.debug(f'Download requested for url: {url}')
+    try:
+        page = requests.get(url)
+    except requests.exceptions.MissingSchema:
+        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and retrying.')
+        url = f'http://{url}'
+        try:
+            page = requests.get(url)
+        except requests.exceptions.ConnectionError:
+            logging.error(f'Invalid url: {url}. Aborted.')
+            sys.exit(SYSTEM_EXIT_CODES['connection_bad_url'])
+        except Exception:
+            logging.exception(f'Some other error arose. Aborted.')
+            sys.exit(SYSTEM_EXIT_CODES['connection_unknown'])
+    except Exception:
+        logging.exception(f'Some other error arose. Aborted.')
+        sys.exit(SYSTEM_EXIT_CODES['connection_unknown'])
+    if not page.ok:
+        logging.error(f'Was not able to load page. Aborted.\n'
+                      f'Returned status code is {page.status_code}.')
+        sys.exit(SYSTEM_EXIT_CODES['connection_bad_response'])
     if folder is None:
         folder = os.getcwd()
     if not os.path.exists(folder):
         os.mkdir(folder)
+        logging.info(f'Folder created: {folder}')
     working_in_sub_folder_flag = False
     if folder is not None:
         os.chdir(folder)
         working_in_sub_folder_flag = True
-    page = requests.get(url)
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
@@ -40,9 +63,10 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 item_file_name = make_name(item_link)
                 try:
                     item_content = download_content(item_link, url)
-                except Exception:
-                    pass
+                except ConnectionError:
+                    logging.exception(f'Exception raised when saving {item_link}')
                 else:
+                    logging.debug(f'Downloaded object: {object_}\n{url}')
                     object_[key] = save_file(item_content, downloads_folder, item_file_name)
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
@@ -71,7 +95,7 @@ def download_content(file_url: str, page_url: str) -> bytes:
     response = requests.get(absolute_file_url)
     if response.ok:
         return response.content
-    raise Exception(
+    raise ConnectionError(
         f'Error on request. Returned status code: {response.status_code}',
     )
 
