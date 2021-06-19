@@ -79,9 +79,9 @@ def save_file(content: bytes, folder: str, file_name: str) -> str:
 
 
 def make_name(
-    url: str,
-    set_extension: Union[bool, str] = True,
-    default_extension: str = '.html',
+        url: str,
+        set_extension: Union[bool, str] = True,
+        default_extension: str = '.html',
 ) -> str:
     """
     Make file name out of url.
