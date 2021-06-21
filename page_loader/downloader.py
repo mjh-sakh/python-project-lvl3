@@ -46,12 +46,15 @@ def download(url: str, folder: Optional[str] = None) -> str:
     if folder is None:
         folder = os.getcwd()
     if not os.path.exists(folder):
-        os.mkdir(folder)
-        logging.info(f'Folder created: {folder}')
+        logging.error(f"Folder doesn't exist: {folder}")
+        sys.exit(SYSTEM_EXIT_CODES['file_not_found'])
     working_in_sub_folder_flag = False
     if folder is not None:
         os.chdir(folder)
         working_in_sub_folder_flag = True
+    if not os.access('.', os.W_OK):
+        logging.error("Don't have write access.")
+        sys.exit(SYSTEM_EXIT_CODES['file_permission'])
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
