@@ -76,7 +76,7 @@ def test_download_defaults_to_cwd(temp_folder, page_url):
     ("http://hpmor.com", "hpmor-com", "hpmor-com-files.txt"),  # relative links
 ])
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog):
-    caplog.set_level(logging.DEBUG)
+    # caplog.set_level(logging.DEBUG)
     subfolder = 'subfolder'
     os.mkdir(subfolder)
     file_path = download(page_url, subfolder)
@@ -95,7 +95,8 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     ('httppp://ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_other'],)),
     ('http://hexlet.io', 'test', SystemExit, (SYSTEM_EXIT_CODES['file_not_found'],)),
 ])
-def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_ex_args):
+def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_ex_args, caplog):
+    caplog.set_level(logging.DEBUG)
     with pytest.raises(expected_ex_type) as ex_info:
         download(url, folder)
     assert ex_info.value.args == expected_ex_args
@@ -109,6 +110,7 @@ def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expecte
     ('http://hexlet.io', 'test', "Folder doesn't exist:"),
 ])
 def test_download_writes_log(temp_folder, url, folder, expected_log_message, caplog):
+    caplog.set_level(logging.DEBUG)
     try:
         download(url, folder)
     except BaseException:
