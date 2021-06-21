@@ -52,13 +52,13 @@ def test_download(temp_folder, page_url, expected_file):
     #         assert check_if_same(file1, file2)
 
 
-@pytest.mark.parametrize("page_url, sub_folder", [
-    ("https://sheldonbrown.com/harris/bikes.html", "test"),
-])
-def test_download_creates_folder(temp_folder, sub_folder, page_url):
-    save_folder = os.path.join(temp_folder, sub_folder)
-    file_path = download(page_url, save_folder)
-    assert os.path.isdir(save_folder)
+# @pytest.mark.parametrize("page_url, sub_folder", [
+#     ("https://sheldonbrown.com/harris/bikes.html", "test"),
+# ])
+# def test_download_creates_folder(temp_folder, sub_folder, page_url):
+#     save_folder = os.path.join(temp_folder, sub_folder)
+#     file_path = download(page_url, save_folder)
+#     assert os.path.isdir(save_folder)
 
 
 @pytest.mark.parametrize("page_url", [
@@ -78,6 +78,7 @@ def test_download_defaults_to_cwd(temp_folder, page_url):
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog):
     caplog.set_level(logging.DEBUG)
     subfolder = 'subfolder'
+    os.mkdir(subfolder)
     file_path = download(page_url, subfolder)
     files_folder_name = f'{core_name}_files'
     full_path = os.path.join(subfolder, files_folder_name)
@@ -91,7 +92,8 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
 @pytest.mark.parametrize("url, folder, expected_ex_type, expected_ex_args", [
     ('abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_url'],)),
     ('ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_response'],)),
-    ('httppp://ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_unknown'],)),
+    ('httppp://ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_other'],)),
+    ('http://hexlet.io', 'test', SystemExit, (SYSTEM_EXIT_CODES['file_not_found'],)),
 ])
 def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_ex_args):
     with pytest.raises(expected_ex_type) as ex_info:
@@ -104,6 +106,7 @@ def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expecte
     ('httppp://ya.ru/abracadabra', None, 'Some other error arose'),
     ('ya.ru', None, 'Looks that schema is missed'),
     ('http://ya.ru/abracadabra', None, 'Was not able to load page. Aborted.'),
+    ('http://hexlet.io', 'test', "Folder doesn't exist:"),
 ])
 def test_download_writes_log(temp_folder, url, folder, expected_log_message, caplog):
     try:
