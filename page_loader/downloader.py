@@ -2,29 +2,32 @@ import logging
 import os
 import re
 import sys
+from types import MappingProxyType
 from typing import Union, Optional
 from urllib.parse import urlparse
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
 
-SYSTEM_EXIT_CODES = {
+SYSTEM_EXIT_CODES = MappingProxyType({
     'connection_bad_url': 10,
     'connection_bad_response': 11,
-    'connection_unknown': 19,
-}
+    'connection_other': 19,
+    'file_not_found': 20,
+    'file_permission': 21,
+})
 
-DOWNLOAD_OBJECTS = {
+DOWNLOAD_OBJECTS = MappingProxyType({
     'img': ('src', True),
     'link': ('href', False),
     'script': ('src', False),
-}
+})
 
 
 def download(url: str, folder: Optional[str] = None) -> str:
     logging.debug(f'Download requested for url: {url}')
     if not re.search('//', url):
-        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')
+        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')  # noqa: E501
         url = f'http://{url}'
     try:
         page = requests.get(url)
@@ -33,11 +36,12 @@ def download(url: str, folder: Optional[str] = None) -> str:
         logging.error(f'Invalid url: {url}. Aborted.')
         sys.exit(SYSTEM_EXIT_CODES['connection_bad_url'])
     except Exception:
-        logging.exception(f'Some other error arose. Aborted.')
-        sys.exit(SYSTEM_EXIT_CODES['connection_unknown'])
+        logging.exception('Some other error arose. Aborted.')
+        sys.exit(SYSTEM_EXIT_CODES['connection_other'])
     if not page.ok:
-        logging.error(f'Was not able to load page. Aborted.\n'
-                      f'Returned status code is {page.status_code}.')
+        logging.error(
+            f'Was not able to load page. Aborted.\nReturned status code is {page.status_code}.',  # noqa: E501
+        )
         sys.exit(SYSTEM_EXIT_CODES['connection_bad_response'])
     if folder is None:
         folder = os.getcwd()
@@ -59,10 +63,10 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 try:
                     item_content = download_content(item_link, url)
                 except ConnectionError:
-                    logging.exception(f'Exception raised when saving {item_link}')
+                    logging.exception(f'Exception raised when saving {item_link}')  # noqa: E501
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
-                    object_[key] = save_file(item_content, downloads_folder, item_file_name)
+                    object_[key] = save_file(item_content, downloads_folder, item_file_name)  # noqa: E501
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
@@ -105,9 +109,9 @@ def save_file(content: bytes, folder: str, file_name: str) -> str:
 
 
 def make_name(
-        url: str,
-        set_extension: Union[bool, str] = True,
-        default_extension: str = '.html',
+    url: str,
+    set_extension: Union[bool, str] = True,
+    default_extension: str = '.html',
 ) -> str:
     """
     Make file name out of url.
