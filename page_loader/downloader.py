@@ -1,6 +1,6 @@
+import logging
 import os
 import re
-import logging
 import sys
 from typing import Union, Optional
 from urllib.parse import urlparse
@@ -14,7 +14,6 @@ SYSTEM_EXIT_CODES = {
     'connection_unknown': 19,
 }
 
-
 DOWNLOAD_OBJECTS = {
     'img': ('src', True),
     'link': ('href', False),
@@ -24,19 +23,15 @@ DOWNLOAD_OBJECTS = {
 
 def download(url: str, folder: Optional[str] = None) -> str:
     logging.debug(f'Download requested for url: {url}')
+    if not re.search('//', url):
+        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')
+        url = f'http://{url}'
     try:
         page = requests.get(url)
-    except requests.exceptions.MissingSchema:
-        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and retrying.')
-        url = f'http://{url}'
-        try:
-            page = requests.get(url)
-        except requests.exceptions.ConnectionError:
-            logging.error(f'Invalid url: {url}. Aborted.')
-            sys.exit(SYSTEM_EXIT_CODES['connection_bad_url'])
-        except Exception:
-            logging.exception(f'Some other error arose. Aborted.')
-            sys.exit(SYSTEM_EXIT_CODES['connection_unknown'])
+    except requests.exceptions.ConnectionError as ex:
+        logging.debug(ex)
+        logging.error(f'Invalid url: {url}. Aborted.')
+        sys.exit(SYSTEM_EXIT_CODES['connection_bad_url'])
     except Exception:
         logging.exception(f'Some other error arose. Aborted.')
         sys.exit(SYSTEM_EXIT_CODES['connection_unknown'])
