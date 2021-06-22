@@ -4,7 +4,7 @@ import re
 import sys
 from types import MappingProxyType
 from typing import Union, Optional
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
@@ -98,7 +98,7 @@ def download_content(file_url: str, page_url: str) -> bytes:
     if is_absolute(file_url):
         absolute_file_url = file_url
     else:
-        absolute_file_url = f'{page_url}/{file_url}'
+        absolute_file_url = urljoin(page_url, file_url)
     response = requests.get(absolute_file_url)
     if response.ok:
         return response.content
