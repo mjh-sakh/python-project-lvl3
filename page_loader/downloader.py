@@ -26,6 +26,20 @@ DOWNLOAD_OBJECTS = MappingProxyType({
 
 def download(url: str, folder: Optional[str] = None) -> str:
     logging.debug(f'Download requested for url: {url}')
+    if folder is None:
+        folder = os.getcwd()
+    if not os.path.exists(folder):
+        err_message = f"Folder doesn't exist: {folder}"
+        logging.error(err_message)
+        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
+    working_in_sub_folder_flag = False
+    if folder is not None:
+        os.chdir(folder)
+        working_in_sub_folder_flag = True
+    if not os.access('.', os.W_OK):
+        err_message = "Don't have write access."
+        logging.error(err_message)
+        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
     if not re.search('//', url):
         logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')  # noqa: E501
         url = f'http://{url}'
@@ -44,20 +58,6 @@ def download(url: str, folder: Optional[str] = None) -> str:
         err_message = f'Was not able to load page. Aborted.\nReturned status code is {page.status_code}.'  # noqa: E501
         logging.error(err_message)
         raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
-    if folder is None:
-        folder = os.getcwd()
-    if not os.path.exists(folder):
-        err_message = f"Folder doesn't exist: {folder}"
-        logging.error(err_message)
-        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
-    working_in_sub_folder_flag = False
-    if folder is not None:
-        os.chdir(folder)
-        working_in_sub_folder_flag = True
-    if not os.access('.', os.W_OK):
-        err_message = "Don't have write access."
-        logging.error(err_message)
-        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
