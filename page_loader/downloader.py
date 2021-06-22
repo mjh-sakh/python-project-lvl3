@@ -55,7 +55,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
         logging.error(err_message, exc_info=True)
         raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex  # noqa: E501
     if not page.ok:
-        err_message = f'Was not able to load page. Aborted.\nReturned status code is {page.status_code}.'  # noqa: E501
+        err_message = f'Was not able to load page. Aborted.\n\tReturned status code is {page.status_code}.'  # noqa: E501
         logging.error(err_message)
         raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
     page_code = page.text
@@ -68,6 +68,8 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 item_file_name = make_name(item_link)
                 try:
                     item_content = download_content(item_link, url)
+                except ConnectionError as ex:
+                    logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')
                 except Exception:
                     logging.warning(
                         f'Exception raised when saving {item_link}', exc_info=True,  # noqa: E501
