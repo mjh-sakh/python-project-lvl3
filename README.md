@@ -20,3 +20,5 @@ Educational project to build a program that saves web-page locally.
 ## Local links and scripts are saved too
 [![CLI interface](https://img.youtube.com/vi/bR_jbQzpwEs/0.jpg)](https://youtu.be/bR_jbQzpwEs "Step 3")]
 
+## Human friendly error messages
+[![CLI interface](https://img.youtube.com/vi/XYtYlKlboPw/0.jpg)](https://youtu.be/XYtYlKlboPw "Step 5")]
