@@ -33,28 +33,31 @@ def download(url: str, folder: Optional[str] = None) -> str:
         page = requests.get(url)
     except requests.exceptions.ConnectionError as ex:
         logging.debug(ex)
-        logging.error(f'Invalid url: {url}. Aborted.')
-        sys.exit(SYSTEM_EXIT_CODES['connection_bad_url'])
-    except Exception:
-        logging.exception('Some other error arose. Aborted.')
-        sys.exit(SYSTEM_EXIT_CODES['connection_other'])
+        err_message = f'Invalid url: {url}. Aborted.'
+        logging.error(err_message)
+        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex  # noqa: E501
+    except Exception as ex:
+        err_message = 'Some other error arose. Aborted.'
+        logging.error(err_message, exc_info=True)
+        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex  # noqa: E501
     if not page.ok:
-        logging.error(
-            f'Was not able to load page. Aborted.\nReturned status code is {page.status_code}.',  # noqa: E501
-        )
-        sys.exit(SYSTEM_EXIT_CODES['connection_bad_response'])
+        err_message = f'Was not able to load page. Aborted.\nReturned status code is {page.status_code}.'  # noqa: E501
+        logging.error(err_message)
+        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
     if folder is None:
         folder = os.getcwd()
     if not os.path.exists(folder):
-        logging.error(f"Folder doesn't exist: {folder}")
-        sys.exit(SYSTEM_EXIT_CODES['file_not_found'])
+        err_message = f"Folder doesn't exist: {folder}"
+        logging.error(err_message)
+        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
     working_in_sub_folder_flag = False
     if folder is not None:
         os.chdir(folder)
         working_in_sub_folder_flag = True
     if not os.access('.', os.W_OK):
-        logging.error("Don't have write access.")
-        sys.exit(SYSTEM_EXIT_CODES['file_permission'])
+        err_message = "Don't have write access."
+        logging.error(err_message)
+        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
@@ -65,8 +68,10 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 item_file_name = make_name(item_link)
                 try:
                     item_content = download_content(item_link, url)
-                except ConnectionError:
-                    logging.exception(f'Exception raised when saving {item_link}')  # noqa: E501
+                except Exception:
+                    logging.warning(
+                        f'Exception raised when saving {item_link}', exc_info=True,  # noqa: E501
+                    )
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
                     object_[key] = save_file(item_content, downloads_folder, item_file_name)  # noqa: E501

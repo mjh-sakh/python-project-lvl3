@@ -89,17 +89,17 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     assert sorted(saved_names_list) == sorted(expected_names_list)
 
 
-@pytest.mark.parametrize("url, folder, expected_ex_type, expected_ex_args", [
-    ('abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_url'],)),
-    ('ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_bad_response'],)),
-    ('httppp://ya.ru/abracadabra', None, SystemExit, (SYSTEM_EXIT_CODES['connection_other'],)),
-    ('http://hexlet.io', 'test', SystemExit, (SYSTEM_EXIT_CODES['file_not_found'],)),
+@pytest.mark.parametrize("url, folder, expected_ex_type, expected_sys_exit_code", [
+    ('abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_bad_url']),
+    ('ya.ru/abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_bad_response']),
+    ('httppp://ya.ru/abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_other']),
+    ('http://hexlet.io', 'test', FileNotFoundError, SYSTEM_EXIT_CODES['file_not_found']),
 ])
-def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_ex_args, caplog):
+def test_download_exit_codes(temp_folder, url, folder, expected_ex_type, expected_sys_exit_code, caplog):
     caplog.set_level(logging.DEBUG)
     with pytest.raises(expected_ex_type) as ex_info:
         download(url, folder)
-    assert ex_info.value.args == expected_ex_args
+    assert ex_info.value.args[-1] == expected_sys_exit_code
 
 
 @pytest.mark.parametrize("url, folder, expected_log_message", [
