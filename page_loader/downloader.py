@@ -65,9 +65,10 @@ def download(url: str, folder: Optional[str] = None) -> str:
         for object_ in soup.find_all(download_object):
             item_link = object_.get(key)
             if item_link and (always_download or is_local(item_link, url)):
+                item_link = convert_to_absolute(item_link, url)
                 item_file_name = make_name(item_link)
                 try:
-                    item_content = download_content(item_link, url)
+                    item_content = download_content(item_link)
                 except ConnectionError as ex:
                     logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')
                 except Exception:
@@ -96,12 +97,16 @@ def is_absolute(link: str) -> bool:
     return bool(re.search('//', link))
 
 
-def download_content(file_url: str, page_url: str) -> bytes:
-    if is_absolute(file_url):
-        absolute_file_url = file_url
+def convert_to_absolute(url: str, page_url: str) -> str:
+    if is_absolute(url):
+        absolute_url = url
     else:
-        absolute_file_url = urljoin(page_url, file_url)
-    response = requests.get(absolute_file_url)
+        absolute_url = urljoin(page_url, url)
+    return absolute_url
+
+
+def download_content(file_url: str) -> bytes:
+    response = requests.get(file_url)
     if response.ok:
         return response.content
     raise ConnectionError(
