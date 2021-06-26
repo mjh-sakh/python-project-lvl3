@@ -31,7 +31,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
     if not os.path.exists(folder):
         err_message = f"Folder doesn't exist: {folder}"
         logging.error(err_message)
-        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
+        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])  # noqa: E501
     working_in_sub_folder_flag = False
     if folder is not None:
         os.chdir(folder)
@@ -70,7 +70,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 try:
                     item_content = download_content(item_link)
                 except ConnectionError as ex:
-                    logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')
+                    logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')  # noqa: E501
                 except Exception:
                     logging.warning(
                         f'Exception raised when saving {item_link}', exc_info=True,  # noqa: E501
@@ -146,8 +146,7 @@ def make_name(
     """
     scheme = re.match('.+//', url)
     trimmed_url = url[len(scheme[0]):] if scheme else url
-    trimmed_url = trimmed_url[1:] if trimmed_url[0] == '/' else trimmed_url
-    trimmed_url = trimmed_url[:-1] if trimmed_url[-1] == '/' else trimmed_url
+    trimmed_url = trimmed_url.strip('/')
 
     # Regex explanation: two conditions with OR
     # first: (?<=//).+/\S+(\.\w+)$
