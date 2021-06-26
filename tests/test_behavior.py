@@ -2,7 +2,6 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import TextIO
 
 import pytest
 from bs4 import BeautifulSoup as bs
@@ -47,9 +46,7 @@ def test_download(temp_folder, page_url, expected_file, requests_mock):
     folder_path, file_name = os.path.split(file_path)
     assert Path(folder_path).resolve() == Path(temp_folder).resolve()
     assert file_name == expected_file
-    # with open(file_path) as file1:
-    #     with open(locate(expected_file)) as file2:
-    #         assert check_if_same(file1, file2)
+    assert bs(read_text(file_path)).prettify() == bs(read_text(locate(expected_file))).prettify()
 
 
 # @pytest.mark.parametrize("page_url, sub_folder", [
@@ -89,6 +86,7 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     with open(locate(expected_names)) as f:
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
+    assert bs(read_text(file_path)).prettify() == bs(read_text(locate(f'saved_{core_name}.html'))).prettify()
 
 
 @pytest.mark.parametrize("url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs", [
