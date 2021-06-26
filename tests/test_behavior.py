@@ -118,7 +118,7 @@ def test_download_writes_log(temp_folder, url, folder, expected_log_message, moc
     caplog.set_level(logging.DEBUG)
     try:
         download(url, folder)
-    except BaseException:
+    except OSError:
         pass
     finally:
         assert expected_log_message in caplog.text
