@@ -150,9 +150,11 @@ def make_name(
 
     # Regex explanation: two conditions with OR
     # first: (?<=//).+/\S+(\.\w+)$
-    # if there is // in the line, consider (\.\w+) template only if there is '/' between it and //
+    #   if there is // in the line,
+    #   consider (\.\w+) template only if there is '/' between it and //
     # or second: ^(?:(?!//).)*?(\.\w+)$
-    # if there is no // in the line, take (\.\w+) template at the end of the line
+    #   if there is no // in the line
+    #   take (\.\w+) template at the end of the line
     match = re.search(r'(?<=//).+/\S+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', url)  # noqa: E501
     if match:
         group1, group2 = match.groups()
