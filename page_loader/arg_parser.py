@@ -1,3 +1,5 @@
+"""Module to parse arguments when work in CLI."""
+
 import argparse
 
 DESCRIPTION = """
@@ -5,7 +7,13 @@ page_loader -f hexlet http://hexlet.io
 """
 
 
-def get_parser():
+def get_parser() -> argparse.ArgumentParser:
+    """
+    Provide parser to main function.
+
+    Returns:
+        argparse ArgumentParser
+    """
     parser = argparse.ArgumentParser(
         description='Utility to download web page from internet and save it locally.',  # noqa: E501
         usage=DESCRIPTION,

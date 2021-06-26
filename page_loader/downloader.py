@@ -1,7 +1,8 @@
+"""Main module to save page."""
+
 import logging
 import os
 import re
-import sys
 from types import MappingProxyType
 from typing import Union, Optional
 from urllib.parse import urlparse, urljoin
@@ -24,14 +25,32 @@ DOWNLOAD_OBJECTS = MappingProxyType({
 })
 
 
-def download(url: str, folder: Optional[str] = None) -> str:
+def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS238, WPS210, WPS213, WPS231
+    """
+    Download page, including images and local content of link and script.
+
+    Page will be saved in the current working directory,
+    unless folder is specified.
+
+    Args:
+        url: page address, str
+        folder: folder, str
+
+    Returns:
+        Address of saved page.
+
+    Raises:
+          ConnectionError: cannot get reguested page.
+          FileNotFoundError: specified folder doesn't exist.
+          PermissionError: do not have write access.
+    """
     logging.debug(f'Download requested for url: {url}')
     if folder is None:
         folder = os.getcwd()
     if not os.path.exists(folder):
         err_message = f"Folder doesn't exist: {folder}"
         logging.error(err_message)
-        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])  # noqa: E501
+        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
     working_in_sub_folder_flag = False
     if folder is not None:
         os.chdir(folder)
@@ -41,7 +60,7 @@ def download(url: str, folder: Optional[str] = None) -> str:
         logging.error(err_message)
         raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
     if not re.search('//', url):
-        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')  # noqa: E501
+        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')
         url = f'http://{url}'
     try:
         page = requests.get(url)
@@ -49,13 +68,13 @@ def download(url: str, folder: Optional[str] = None) -> str:
         logging.debug(ex)
         err_message = f'Invalid url: {url}. Aborted.'
         logging.error(err_message)
-        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex  # noqa: E501
+        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex
     except Exception as ex:
         err_message = 'Some other error arose. Aborted.'
         logging.error(err_message, exc_info=True)
-        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex  # noqa: E501
+        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex
     if not page.ok:
-        err_message = f'Was not able to load page. Aborted.\n\tReturned status code is {page.status_code}.'  # noqa: E501
+        err_message = f'Was not able to load page. Aborted.\n\tReturned status code is {page.status_code}.'
         logging.error(err_message)
         raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
     page_code = page.text
@@ -69,11 +88,11 @@ def download(url: str, folder: Optional[str] = None) -> str:
                 item_file_name = make_name(item_link)
                 try:
                     item_content = download_content(item_link)
-                except ConnectionError as ex:
-                    logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')  # noqa: E501
+                except ConnectionError as ex:  # noqa: WPS440
+                    logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')
                 except Exception:
                     logging.warning(
-                        f'Exception raised when saving {item_link}', exc_info=True,  # noqa: E501
+                        f'Exception raised when saving {item_link}', exc_info=True,
                     )
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
@@ -87,6 +106,16 @@ def download(url: str, folder: Optional[str] = None) -> str:
 
 
 def is_local(link: str, local_link: str) -> bool:
+    """
+    Check if link is local to referred page.
+
+    Args:
+        link: link to be checked, str
+        local_link: referred local page, str
+
+    Returns:
+        True if local, otherwise False
+    """
     parse = urlparse(link)
     if not parse.netloc:
         return True
@@ -95,10 +124,30 @@ def is_local(link: str, local_link: str) -> bool:
 
 
 def is_absolute(link: str) -> bool:
+    """
+    Check if scheme is present in the link.
+
+    Args:
+        link: link to be checked.
+
+    Returns:
+        True if scheme is present and therefore absolute.
+    """
     return bool(re.search('//', link))
 
 
 def convert_to_absolute(url: str, page_url: str) -> str:
+    """
+    Check if link relative and convert it to absolute if it is.
+
+    Args:
+        url: url to be converted, str
+        page_url: home url as reference to make absolute link, str
+
+    Returns:
+        Original link if it was absolute.
+        New link with scheme and netlok if it was relative.
+    """
     if is_absolute(url):
         absolute_url = url
     else:
@@ -107,6 +156,18 @@ def convert_to_absolute(url: str, page_url: str) -> str:
 
 
 def download_content(file_url: str) -> bytes:
+    """
+    Download content using requests.get.
+
+    Args:
+        file_url: file url, str.
+
+    Returns:
+        Response content (bytes).
+
+    Raises:
+        ConnectionError: if status code is not 200.
+    """
     response = requests.get(file_url)
     if response.ok:
         return response.content
@@ -115,7 +176,18 @@ def download_content(file_url: str) -> bytes:
     )
 
 
-def save_file(content: bytes, folder: str, file_name: str) -> str:
+def save_file(content: bytes, folder: str, file_name: str) -> str:  # noqa: WPS110
+    """
+    Write content to file with *file_name* under *folder*.
+
+    Args:
+         content: content to write, bytes
+         folder: folder where file should be located, str
+         file_name: file name, str
+
+    Returns:
+        Path to newly created file.
+    """
     if not os.path.exists(folder):
         os.mkdir(folder)
     file_path = os.path.join(folder, file_name)
@@ -124,7 +196,7 @@ def save_file(content: bytes, folder: str, file_name: str) -> str:
     return file_path
 
 
-def make_name(
+def make_name(  # noqa: WPS210
     url: str,
     set_extension: Union[bool, str] = True,
     default_extension: str = '.html',
@@ -137,12 +209,20 @@ def make_name(
 
     Add extension options:
         True: default, keeps original extension
-              or adds default if there was no
+              or adds default if there was no extension
         False: returns name without extension
         str: adds specified extension, replaces existing
 
     Example: https://example.com/file.jpg
     Coverts to: example-com-file.jpg
+
+    Args:
+        url: url, str
+        set_extension: see options above, bool or str
+        default_extension: str
+
+    Returns:
+        Name string.
     """
     scheme = re.match('.+//', url)
     trimmed_url = url[len(scheme[0]):] if scheme else url
@@ -155,10 +235,10 @@ def make_name(
     # or second: ^(?:(?!//).)*?(\.\w+)$
     #   if there is no // in the line
     #   take (\.\w+) template at the end of the line
-    match = re.search(r'(?<=//).+/\S+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', url)  # noqa: E501
+    match = re.search(r'(?<=//).+/\S+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', url)
     if match:
         group1, group2 = match.groups()
-        ending = group1 if group1 else group2
+        ending = group1 or group2
         trimmed_url = trimmed_url[:-len(ending)]
     else:
         ending = default_extension
