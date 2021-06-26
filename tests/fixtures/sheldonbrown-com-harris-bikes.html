@@ -1,45 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN"><html><head><script data-ezscrex='false' data-cfasync='false' data-pagespeed-no-defer>var __ez=__ez||{};__ez.stms=Date.now();__ez.evt={};__ez.script={};__ez.ck=__ez.ck||{};__ez.template={};__ez.template.isOrig=true;__ez.queue=(function(){var count=0,incr=0,items=[],timeDelayFired=false,hpItems=[],lpItems=[],allowLoad=true;var obj={func:function(name,funcName,parameters,isBlock,blockedBy,deleteWhenComplete,proceedIfError){var self=this;this.name=name;this.funcName=funcName;this.parameters=parameters===null?null:(parameters instanceof Array)?parameters:[parameters];this.isBlock=isBlock;this.blockedBy=blockedBy;this.deleteWhenComplete=deleteWhenComplete;this.isError=false;this.isComplete=false;this.isInitialized=false;this.proceedIfError=proceedIfError;this.isTimeDelay=false;this.process=function(){log("... func = "+name);self.isInitialized=true;self.isComplete=true;log("... func.apply: "+name);var funcs=self.funcName.split('.');var func=null;if(funcs.length>3){}else if(funcs.length===3){func=window[funcs[0]][funcs[1]][funcs[2]];}else if(funcs.length===2){func=window[funcs[0]][funcs[1]];}else{func=window[self.funcName];}
-if(typeof func!=='undefined'&&func!==null){func.apply(null,this.parameters);}
-if(self.deleteWhenComplete===true)delete items[name];if(self.isBlock===true){log("----- F'D: "+self.name);processAll();}}},file:function(name,path,isBlock,blockedBy,async,defer,proceedIfError){var self=this;this.name=name;this.path=path;this.async=async;this.defer=defer;this.isBlock=isBlock;this.blockedBy=blockedBy;this.isInitialized=false;this.isError=false;this.isComplete=false;this.proceedIfError=proceedIfError;this.isTimeDelay=false;this.process=function(){self.isInitialized=true;log("... file = "+name);var scr=document.createElement('script');scr.src=path;if(async===true)scr.async=true;else if(defer===true)scr.defer=true;scr.onerror=function(){log("----- ERR'D: "+self.name);self.isError=true;if(self.isBlock===true){processAll();}};scr.onreadystatechange=scr.onload=function(){var state=scr.readyState;log("----- F'D: "+self.name);if((!state||/loaded|complete/.test(state))){self.isComplete=true;if(self.isBlock===true){processAll();}}};document.getElementsByTagName('head')[0].appendChild(scr);}},fileLoaded:function(name,isComplete){this.name=name;this.path="";this.async=false;this.defer=false;this.isBlock=false;this.blockedBy=[];this.isInitialized=true;this.isError=false;this.isComplete=isComplete;this.proceedIfError=false;this.isTimeDelay=false;this.process=function(){};}};function init(){window.addEventListener("load",function(){setTimeout(function(){timeDelayFired=true;log('TDELAY -----');processAll();},5000);},false);}
-function addFile(name,path,isBlock,blockedBy,async,defer,proceedIfError,priority){var item=new obj.file(name,path,isBlock,blockedBy,async,defer,proceedIfError);if(priority===true){hpItems[name]=item}else{lpItems[name]=item}
-items[name]=item;checkIfBlocked(item);}
-function setallowLoad(settobool){allowLoad=settobool}
-function addFunc(name,func,parameters,isBlock,blockedBy,autoInc,deleteWhenComplete,proceedIfError,priority){if(autoInc===true)name=name+"_"+incr++;var item=new obj.func(name,func,parameters,isBlock,blockedBy,deleteWhenComplete,proceedIfError);if(priority===true){hpItems[name]=item}else{lpItems[name]=item}
-items[name]=item;checkIfBlocked(item);}
-function addTimeDelayFile(name,path){var item=new obj.file(name,path,false,[],false,false,true);item.isTimeDelay=true;log(name+' ... '+' FILE! TDELAY');lpItems[name]=item;items[name]=item;checkIfBlocked(item);}
-function addTimeDelayFunc(name,func,parameters){var item=new obj.func(name,func,parameters,false,[],true,true);item.isTimeDelay=true;log(name+' ... '+' FUNCTION! TDELAY');lpItems[name]=item;items[name]=item;checkIfBlocked(item);}
-function checkIfBlocked(item){if(isBlocked(item)===true||allowLoad==false)return;item.process();}
-function isBlocked(item){if(item.isTimeDelay===true&&timeDelayFired===false){log(item.name+" blocked = TIME DELAY!");return true;}
-if(item.blockedBy instanceof Array){for(var i=0;i<item.blockedBy.length;i++){var block=item.blockedBy[i];if(items.hasOwnProperty(block)===false){log(item.name+" blocked = "+block);return true;}else if(item.proceedIfError===true&&items[block].isError===true){return false;}else if(items[block].isComplete===false){log(item.name+" blocked = "+block);return true;}}}
-return false;}
-function markLoaded(filename){if(!filename||0===filename.length){return;}
-if(filename in items){var item=items[filename];if(item.isComplete===true){log(item.name+' '+filename+': error loaded duplicate')}else{item.isComplete=true;item.isInitialized=true;}}else{items[filename]=new obj.fileLoaded(filename,true);}
-log("Added dummyfile: "+items[filename]);}
-function log(msg){var href=window.location.href;var reg=new RegExp('[?&]ezq=([^&#]*)','i');var string=reg.exec(href);var res=string?string[1]:null;if(res==="1")console.debug(msg);}
-function processAll(){count++;if(count>200)return;log("let's go");processItems(hpItems);processItems(lpItems);}
-function processItems(list){for(var i in list){if(list.hasOwnProperty(i)===false)continue;var item=list[i];if(item.isComplete===true||isBlocked(item)||item.isInitialized===true||item.isError===true){if(item.isError===true){log(item.name+': error')}else if(item.isComplete===true){log(item.name+': complete already')}else if(item.isInitialized===true){log(item.name+': initialized already')}}else{item.process();}}}
-init();return{addFile:addFile,addDelayFile:addTimeDelayFile,addFunc:addFunc,addDelayFunc:addTimeDelayFunc,items:items,processAll:processAll,setallowLoad:setallowLoad,markLoaded:markLoaded,};})();__ez.evt.add=function(e,t,n){e.addEventListener?e.addEventListener(t,n,!1):e.attachEvent?e.attachEvent("on"+t,n):e["on"+t]=n()},__ez.evt.remove=function(e,t,n){e.removeEventListener?e.removeEventListener(t,n,!1):e.detachEvent?e.detachEvent("on"+t,n):delete e["on"+t]};__ez.script.add=function(e){var t=document.createElement("script");t.src=e,t.async=!0,t.type="text/javascript",document.getElementsByTagName("head")[0].appendChild(t)};__ez.dot={};__ez.vep=(function(){var pixels=[],pxURL="/detroitchicago/grapefruit.gif";function AddPixel(vID,pixelData){if(__ez.dot.isDefined(vID)&&__ez.dot.isValid(pixelData)){pixels.push({type:'video',video_impression_id:vID,domain_id:__ez.dot.getDID(),t_epoch:__ez.dot.getEpoch(0),data:__ez.dot.dataToStr(pixelData)});}}
-function Fire(){if(typeof document.visibilityState!=='undefined'&&document.visibilityState==="prerender"){return;}
-if(__ez.dot.isDefined(pixels)&&pixels.length>0){while(pixels.length>0){var j=5;if(j>pixels.length){j=pixels.length;}
-var pushPixels=pixels.splice(0,j);var pixelURL=__ez.dot.getURL(pxURL)+"?orig="+(__ez.template.isOrig===true?1:0)+"&v="+btoa(JSON.stringify(pushPixels));__ez.dot.Fire(pixelURL);}}
-pixels=[];}
-return{Add:AddPixel,Fire:Fire};})();</script><script data-ezscrex='false' data-cfasync='false' data-pagespeed-no-defer>__ez.pel=(function(){var pixels=[],pxURL="/porpoiseant/army.gif";function AddAndFirePixel(adSlot,pixelData){AddPixel(adSlot,pixelData,0,0,0,0,0);Fire();}
-function AddAndFireOrigPixel(adSlot,pixelData){AddPixel(adSlot,pixelData,0,0,0,0,0,true);Fire();}
-function GetCurrentPixels(){return pixels;}
-function AddPixel(adSlot,pixelData,revenue,est_revenue,bid_floor_filled,bid_floor_prev,stat_source_id,isOrig){if(!__ez.dot.isDefined(adSlot)||__ez.dot.isAnyDefined(adSlot.getSlotElementId,adSlot.ElementId)==false){return;}
-var ad_position_id=parseInt(__ez.dot.getTargeting(adSlot,'ap'));var impId=__ez.dot.getSlotIID(adSlot),adUnit=__ez.dot.getAdUnit(adSlot,isOrig);var compId=parseInt(__ez.dot.getTargeting(adSlot,"compid"));var lineItemId=0;var creativeId=0;var ezimData=getEzimData(adSlot);if(typeof ezimData=='object'){if(ezimData.creative_id!==undefined){creativeId=ezimData.creative_id;}
-if(ezimData.line_item_id!==undefined){lineItemId=ezimData.line_item_id;}}
-if(__ez.dot.isDefined(impId,adUnit)&&__ez.dot.isValid(pixelData)){pixels.push({type:"impression",impression_id:impId,domain_id:__ez.dot.getDID(),unit:adUnit,t_epoch:__ez.dot.getEpoch(0),revenue:revenue,est_revenue:est_revenue,ad_position:ad_position_id,ad_size:"",bid_floor_filled:bid_floor_filled,bid_floor_prev:bid_floor_prev,stat_source_id:stat_source_id,country_code:__ez.dot.getCC(),pageview_id:__ez.dot.getPageviewId(),comp_id:compId,line_item_id:lineItemId,creative_id:creativeId,data:__ez.dot.dataToStr(pixelData),is_orig:isOrig||__ez.template.isOrig,});}}
-function AddPixelById(impFullId,pixelData,isOrig){var vals=impFullId.split('/');if(__ez.dot.isDefined(impFullId)&&vals.length===3&&__ez.dot.isValid(pixelData)){var adUnit=vals[0],impId=vals[2];pixels.push({type:"impression",impression_id:impId,domain_id:__ez.dot.getDID(),unit:adUnit,t_epoch:__ez.dot.getEpoch(0),pageview_id:__ez.dot.getPageviewId(),data:__ez.dot.dataToStr(pixelData),is_orig:isOrig||__ez.template.isOrig});}}
-function Fire(){if(typeof document.visibilityState!=='undefined'&&document.visibilityState==="prerender")return;if(__ez.dot.isDefined(pixels)&&pixels.length>0){var allPixels=[pixels.filter(function(pixel){return pixel.is_orig}),pixels.filter(function(pixel){return!pixel.is_orig})];allPixels.forEach(function(pixels){while(pixels.length>0){var isOrig=pixels[0].is_orig||false;var j=5;if(j>pixels.length){j=pixels.length;}
-var pushPixels=pixels.splice(0,j);var pixelURL=__ez.dot.getURL(pxURL)+"?orig="+(isOrig===true?1:0)+"&sts="+btoa(JSON.stringify(pushPixels));if(typeof window.isAmp!=='undefined'&&isAmp&&typeof window._ezaq!=='undefined'&&_ezaq.hasOwnProperty("domain_id")){pixelURL+="&visit_uuid="+_ezaq['visit_uuid'];}
-__ez.dot.Fire(pixelURL);}})}
-pixels=[];}
-function getEzimData(adSlot){if(typeof _ezim_d=="undefined"){return false}
-var adUnitName=__ez.dot.getAdUnitPath(adSlot).split('/').pop();if(typeof _ezim_d==='object'&&_ezim_d.hasOwnProperty(adUnitName)){return _ezim_d[adUnitName];}
-for(var ezimKey in _ezim_d){if(ezimKey.split('/').pop()===adUnitName){return _ezim_d[ezimKey];}}
-return false;}
-return{Add:AddPixel,AddAndFire:AddAndFirePixel,AddAndFireOrig:AddAndFireOrigPixel,AddById:AddPixelById,Fire:Fire,GetPixels:GetCurrentPixels,};})();</script>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2//EN"><html><head>
 
 <title>Bicycles from Harris Cyclery, West Newton, MA</title>
 
@@ -68,33 +27,6 @@ function unhighlight(image) {
 }
 
 </script>
-
-
-
-  <!-- OpenWindow 800 x 800 SCRIPT -->
-
-<script>
-
-   <!--
-
-   function openWindow(myLink,windowName)
-
-   {
-
-   if(! window.focus)return;
-
-   var myWin=window.open("",windowName,"height=800,width=800,dependent=yes,scrollbars=yes");
-
-   myWin.focus();
-
-   myLink.target=windowName;
-
-   }
-
-   //-->
-
-</script>
-
 
 
 <link rel='canonical' href='https://www.sheldonbrown.com/harris/bikes.html' />
@@ -154,9 +86,7 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 
 <center> 
 
-<!--- flooble --->
 
-<!-- COMMERCIAL BAR 12-4-06 -->
 
 <table border="" bgcolor="FFFFFF" cellpadding="6">
 
@@ -172,11 +102,9 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 
 
 
- <a href="../hub.html" target="_parent" onmouseover="highlight(&#39;button1&#39;);" onmouseout="unhighlight(&#39;button1&#39;);"><img alt="Harris Cyclery, West Newton, MA" src="http://cdn-0.sheldonbrown.com/images/harris-logo-beige.gif" name="button1" border="0" width="471" height="61"/></a><br/>
+ <a href="../hub.html" target="_parent" onmouseover="highlight(button1;);" onmouseout="unhighlight(;button1;);"><img alt="Harris Cyclery, West Newton, MA" src="http://cdn-0.sheldonbrown.com/images/harris-logo-beige.gif" name="button1" border="0" width="471" height="61"/></a><br/>
 
 
-
-<!-- Search Google Harris -->
 <center><h3><a href="http://harriscyclery.net/catalog/harris-cyclery-catalog-39/">Visit our harriscyclery.net Catalog for a more Contemporary Shopping Experience.</a></h3></center>
        <center>
  
@@ -188,45 +116,20 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
        <tbody><tr valign="top">
  
        <td>
-<input class="seforminputsmall" type="Text" name="search" value="Search" onfocus="if(this.value==&#39;Search&#39;)this.value=&#39;&#39;" onblur="if(this.value==&#39;&#39;)this.value=&#39;Search&#39;" size="30" maxlength="150"/>
- 
-		<input class="seforminputbutton" type="Image" name="goSiteSearch" src="http://sheldonbrown.com/harris/images/go.gif" alt="Go"/>
  
  
  
 <font><input type="hidden" name="domains" value=""/><input type="radio" name="sitesearch" value="" checked=""/><!-- Search
  
-       Our New Catalog --> </font><p><!--
-       <INPUT TYPE=text name=q size=31 maxlength=255 value="">
- 
-       <INPUT type=submit name=sa VALUE="Google Search">
- 
-       <INPUT type=hidden name=cof
- 
-       VALUE="LW:471;L:http://sheldonbrown.com/../images/harris-logo.gif;LH:61;AH:center;AWFID:3e78bba1cececa56;">
- 
-       <font face=arial,sans-serif size=-1><input type=hidden name=domains value="sheldonbrown.com;sheldonbrown.net"><input type=radio name=sitesearch value="harriscyclery.net" checked> Search
- 
-       HarrisCyclery.net <input
- 
-       type=radio name=sitesearch value=""> Search WWW </font><br>-->
+       Our New Catalog --> </font><p>
  
        </p></td></tr></tbody></table>
  
        </form>
  
        </center>
- 
-       <!-- /Search Google -->
-
-
-
 
 <h3>In West Newton Since 1952 - On The Web Since 1995</h3>
-
-<!-- <H2><A HREF="closeouts.html"><B>Closeout sale on Bianchi and Marin Bikes 2000 and earlier </B></H2></A> <H4>Bianchi Brava, Eros, others; Marin Alpine Trail, Bear Valley, Mount Vision, Palisades Trail, others...</H4> -->
-
-<!--  BIKE BRANDS -->
 
 <h1><font size="+4">Bicycles from Harris Cyclery
 
@@ -235,262 +138,24 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 <h1><font color="RED"><font size="+2">Click the logos for more information!
 
 </font></font></h1>
-<!--
-<A HREF="http://sheldonbrown.com/harris/rivendell/rivendellpageNEW.html"><IMG align=middle valign="center" alt="Rivendell" SRC="http://sheldonbrown.com/harris/bikes/images/rivlogo.gif" width="130" height="130" border="0"></A>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
--->
-<a href="http://www.giant-bicycles.com/en-us/" target="g"><img align="middle" alt="Giant Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/giant2.jpg" width="197" height="56" border="0"/></a> &nbsp;&nbsp;
+
+<a href="http://www.giant-bicycles.com/en-us/" target="g"><img align="middle" alt="Giant Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/giant2.jpg" width="197" height="56" border="0"/></a>
 
 
-<a href="http://www.linusbike.com/"><img align="middle" alt="Linus Bicycles Dutchi, Rambler, Scout, Roadster" src="http://cdn-0.sheldonbrown.com/harris/images/linus-logo.jpg" width="243" height="84" border="0"/></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-<!--<A HREF="http://sheldonbrown.com/harris/bikefriday.html"><IMG align=middle valign="center" alt="bikefriday" SRC="http://sheldonbrown.com/harris/images/bikefridaylogo.gif" width="160" height="90" border="1"></A>-->
-
-
-
-
-<!--<A HREF="http://sheldonbrown.com/harris/pashley.html"><IMG align=middle valign="center" alt="pashley" SRC="http://sheldonbrown.com/harris/images/pashley.jpg" width="200" height="70" border="1"></A>&nbsp;&nbsp;&nbsp;&nbsp;-->
+<a href="http://www.linusbike.com/"><img align="middle" alt="Linus Bicycles Dutchi, Rambler, Scout, Roadster" src="http://cdn-0.sheldonbrown.com/harris/images/linus-logo.jpg" width="243" height="84" border="0"/></a>
 
 <a href="http://harriscyclery.net/product/brompton-folding-bicycles-contact-us-for-pricing.-3338.htm"><img align="middle" valign="center" alt="brompton" src="http://cdn-0.sheldonbrown.com/harris/images/bromptonlogosmall.gif" width="220" height="67" border="0"/></a><p>
-
-
-
-
-
-
-
-
-
-
-
-<!--<A HREF="ant/index.html"><img  align=middle alt="A.N.T. Bikes Logo" valign="center" src= "ant/images/hislogo.gif" width="153" height="51" border="0"></A>-->
-
-
-
-
-
-
-
-<!--<h3><font color="red">New at Harris!</h3>-->
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!--<A HREF="../diamondback-frame.html" target="d"><IMG align=middle alt="Diamondback Bicycles, Harris Cyclery Newton, MA" SRC="../images/diamondback.gif"width="156" height="89" border="0"></A> 
-
-
-
-<!-- <A HREF="electra.html"><IMG align=middle alt="Electra Bicycles" SRC="../electra/logo.gif"width=400 height=64 border="0"></A>  -->
-
-
-
-
-
-<!--<A HREF="fuji.html"><IMG align=middle alt="Fuji Bicycle Logo" SRC="../fuji/logo.gif" width="200" height="35" border="0"></A>-->
-
-
-
-
-
-
-
-
-
-
-<!--
-<A HREF="http://http://www.terrybicycles.com/Bikes_2" target="g"><IMG align=middle alt="Terry Bicycles" SRC="http://sheldonbrown.com/harris/images/terry.gif"width="197" height="56" border="0"></A> &nbsp;&nbsp;
-<!-- <A HREF="../gt99/index.html"><IMG align=middle alt="GT Bicycles" SRC="../gt99/images/logo.gif"width=176 height=41 border="0"></A>  -->
-
- 
-
-
-
-
-
-<!-- 
-
-<TH><A HREF="heron.html" target="l">Traditional Craftsmanship<P>
-
-<IMG align=middle alt="Heron" SRC="images/heron.gif" width="180" height="33"  border="0"><P>Reynolds 531<BR>Hand brazed with lugs</A> -->
 
 </p><p>
 
 
+ <br/><a href="http://www.raleighusa.com/"><img align="middle" alt="Raleigh Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/raleighlogonew.jpg" width="203" height="44" border="0"/></a>
 
-<!--<A HREF="igleheart/index.html"><IMG ALIGN=CENTER ALT="Igleheart Logo" SRC="images/igleheart-logo-small.jpg" WIDTH="280" HEIGHT="80" BORDER=0></A>
-
-
-
-<!-- 
+<a href="http://www.electrabike.com/" target="g"><img align="middle" alt="Electra Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/electralogo.jpg" width="197" height="56" border="0"/></a>
 
 
-
-
-
-
-
-
-<A HREF="jamis/index.html" target="l"><IMG align=middle alt="Jamis Bicycles" SRC="jamis/images/jamislogo.gif"height="100" width="260" border="0"></A>
-
--->
-
- <br/><a href="http://www.raleighusa.com/"><img align="middle" alt="Raleigh Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/raleighlogonew.jpg" width="203" height="44" border="0"/></a>&nbsp;&nbsp;&nbsp;
-
-
-&nbsp;&nbsp;
-<a href="http://www.electrabike.com/" target="g"><img align="middle" alt="Electra Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/electralogo.jpg" width="197" height="56" border="0"/></a> &nbsp;&nbsp;
-
-<!--
-<A HREF="http://www.marinbikes.com/2013/"><IMG align=middle alt="Marin Bicycles" <IMG align=middle alt="Breezer Bicycles" SRC="http://sheldonbrown.com/harris/images/Marin.jpg"width="200" height="41" border="0"></A>&nbsp;&nbsp;&nbsp;&nbsp;
-
--->
-
-
-
-
-<!--
-<A HREF="http://www.bobbinbikes.co.uk/wordpress/"><IMG align=middle alt="Bobbin Bicycles" SRC="http://sheldonbrown.com/harris/images/bobbin-logo.jpg" height=88 width=220 border="0"></A> &nbsp;&nbsp;
-
-<A HREF="http://allcitycycles.com/"><IMG align=middle alt="all city" SRC="http://sheldonbrown.com/harris/images/allcitylogo.png"width=150 height=100 border="0"></A> 
-<p>
-<A HREF="http://www.pashley.co.uk/Pashley_Moulton.php" target="b"><IMG align=middle alt="Pashley/Moulton" SRC="http://sheldonbrown.com/harris/images/pashleymoulton.JPG"width="243" height="64" border="0"></A>&nbsp;&nbsp;&nbsp;
-
-<A HREF="http://waterfordbikes.com"><IMG align=middle valign="center" alt="Waterford" SRC="http://sheldonbrown.com/harris/rivendell/images/waterfordlogo.gif" width="210" height="90" border="0"></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF="http://surlybikes.com/"><IMG align=middle valign="center" alt="Surly Bicycles" SRC="http://sheldonbrown.com/harris/bikes/images/surlylogo.jpg" width="200" height="85" border="0"></a>
--->
 <a href="http://www.bianchiusa.com/"><img align="middle" alt="Bianchi Bicycles" src="http://cdn-0.sheldonbrown.com/harris/images/bianchilogo.jpg" width="90" height="84" border="0"/></a> 
 
-<!--
-<A HREF="http://www.breezerbikes.com/" target="br"><IMG align=middle alt="Breezer Bicycles" SRC="http://sheldonbrown.com/harris/images/breezer_logo.jpg"width="200" height="41" border="0"></A> 
-<p>
-
-<!-- 
-
-<A HREF="../torelli-frame.html" target="t"><IMG align=middle alt="Torelli Bicycles" SRC="../images/torelli.gif"height=54 width=192 border="0"></A>
-
-
-
-<A HREF="vandessel/index.html" target="t"><IMG align=middle alt="Van Dessel Bicycles" SRC="images/vandessel-logo.gif"height=100 width=106 border="0"></A>
-
- -->
-
-
-
-<!--<A HREF="waterford/index.html"><IMG  align=middle SRC="waterford/logors.gif" WIDTH=154 HEIGHT=84 border="0"></A>-->
-
-<!--<A NAME="specials"></A>-->
-
-<!--<H1><FONT COLOR=RED><FONT SIZE="+6">Selected Models:</FONT></FONT></H1>
-
-<TABLE>
-
- <TR><TD><A HREF="../bianchi/volpe.html"><H2>The Bianchi Volpe</H2></A><TD><H3>A great value in a serious touring bike.</H3>
-
- 
-
-
-
-<TR><TD><A HREF="../harris/fujits00.html"><H2>Special Purchase:<BR>The 2000 Fuji Touring Series</H2></A><TD><H3>A great value in a serious touring bike.</H3>
-
-<TR><TD><A HREF="../dbvoyager.html"><H2>The Diamondback Voyager</H2></A><TD><H3>Comfort and style</H3>.
-
- 
-
-<TR><TD><A HREF="../police.html"><H2>Raleigh F-500 Police Fleet Bicycle</H2></A><TD><H3>Sorry, only available to law-enforcement agencies.</H3>
-
-</TABLE>
-
- 
-
--->
-
-<!-- *****************  NINE FACES DECEMBER 2007 ********************* 
-
-<TABLE>
-
-<TR>
-
-<TH><A HREF="http://sheldonbrown.com/sonny.html"><IMG align=middle  alt="Aaron "Sonny" Harris photo" SRC="http://sheldonbrown.com/images/sonnyface_contact.jpeg" height=108 width=72><BR>Aaron "Sonny" Harris</A></TH>
-
-
-
-<TH><A HREF="http://sheldonbrown.com/jon-harris.html"><IMG align=middle  alt="Jonathan "Jon" Harris photo" SRC="http://sheldonbrown.com/images/jon-harris-contact.jpg" height=108 width=72><BR>Jonathan "Jon" Harris</A></TH>
-
-
-
-<TH><A HREF="http://sheldonbrown.com/eagle.html"><IMG align=middle alt="Sheldon Brown photo" SRC="http://sheldonbrown.com/images/scb_eagle_contact.jpeg" height=108 width=72></A><BR><A HREF="http://sheldonbrown.com/home.html">Sheldon</A> <A HREF="http://sheldonbrown.com/bicycle.html">"CaptBike"</A> <A HREF="http://sheldonbrown.com/home.html"> Brown</A></TH>
-
-</TR>
-
-
-
-<!-- *************************** SECOND ROW ***************************** 
-
-
-
-<TR>
-
-<TH><A HREF="http://sheldonbrown.com/tom-deakins.html"><IMG align=middle alt="Sheldon Brown photo" SRC="http://sheldonbrown.com/images/tom-deakins-contact.jpg" height=108 width=72><BR>Tom "DumpBike"  Deakins</A></TH>
-
-
-
-
-
-<TH><A HREF="http://sheldonbrown.com/jay.html"><IMG align=middle alt="Jay Jackson photo" SRC="http://sheldonbrown.com/images/jay-contact.jpeg" height=108 width=72><BR>Jay "International" Jackson</A></TH>
-
-
-
-<TH><A HREF="http://pope-lance.com" target="P"><IMG align=middle alt="Elton Pope-Lance" SRC="http://sheldonbrown.com/images/elton-pope-lance-contact.jpg" height=108 width=72><BR>Elton "BigNegs45" Pope-Lance</A></TH>
-
-</TR>
-
- 
-
-<!-- *************************** THIRD ROW ***************************** 
-
-
-
-<TR>
-
- 
-
-<TH><A HREF="http://sheldonbrown.com/norm-shackley.html"><IMG align=middle alt="Norman Shackley photo" SRC="http://sheldonbrown.com/images/norm-shackley-contact.jpg" height=108 width=72><BR>Norman "Norm" Shackley</A></TH>
-
-<TH><A HREF="http://sheldonbrown.com/tom-quinn.html"><IMG align=middle alt="Tom Quinn" SRC="http://sheldonbrown.com/images/tom-quinn-contact.jpg" height=108 width=72><BR>Tom "The Mighty" Quinn</A></TH>
-
-<TH><A HREF="http://sheldonbrown.com/wong.html"><IMG align=middle alt="Barbara Wong" SRC="http://sheldonbrown.com/images/barbara_contact.jpeg" height=108 width=72><BR>Barbara "No Photo Yet" Wong</A></TH>
-
-</TR>
-
-</TABLE>
-
-
-
-
-
-
-
-
-
-<IMG alt="divider" SRC="http://sheldonbrown.com/images/spokeflop.gif" width="559" height="12"><P>
-
-<H2>This site also features many<BR> <A HREF="../articles.html">useful articles by Sheldon Brown <BR>and others</A>.</H2>
-
-
-
-<!-- ********** ARTICLE GRID 2 X 10 ************** -->
 </p><p>
 <table border="2" bgcolor="yellow" cellpadding="4">
 
@@ -520,7 +185,7 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 
 </th><th><a href="../harart-frames.html">Frames</a> 
 
-</th><th><a href="../harart-gears.html">Gears &amp;<br/>Drivetrain</a> 
+</th><th><a href="../harart-gears.html">Gears<br/>Drivetrain</a> 
 
 </th></tr><tr>
 
@@ -529,8 +194,8 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 </th><th><a href="../glossary.html">Bicycle<br/>Glossary</a>
 
 </th><th><a href="../bicycle_links.html">Bicycle<br/>Links</a> 
-
 </th><th><a href="../oldbikes/index.html">Old<br/>Bikes</a>
+
 
 </th><th><a href="../repair/index.html">Repair<br/>Tips</a> 
 
@@ -538,171 +203,13 @@ __ez.queue.addFunc("attach_ezolpl", "attach_ezolpl", ["3da0c284-8b53-4ce2-6974-4
 
 </th><th><a href="../harart-touring.html">Touring</a> 
 
-</th><th><a href="new.html">What&#39;s<br/>New</a> 
+</th><th><a href="new.html">Whats<br/>New</a> 
 
 </th><th><a href="../harart-wheels.html">Wheels</a> 
 
 </th><th><a href="http://sheldonbrown.com/home.html">Sheldon<br/>Brown</a> 
 
 </th></tr></tbody></table>
-
-
-
-
-
-
-
-
- 
-
-<!--<TABLE ID="1">
-
-
-
-<TR vlign=top><TD><H3>What we do</H3>
-
-We are a small, service oriented bike shop.<P>
-
-Although we primarily serve the Western suburbs of <A HREF="../boston.html">Boston</A>, we are also available to cyclists throughout the planet.<p>  
-
-We can help with hard-to-find parts and accessories and good advice. This site contains a number of useful <A HREF="../articles.html">articles</A> on bicycling and bicycles, plus links to other bicycle-related sites on the Internet.<p>
-
-We are very proud of our problem-solving ability.  We can often create custom solutions to your bicycling problems, adapting your bicycle to your specific needs.<p>
-
-
-
-We make a bit of a specialty of updating high-quality older bikes with modern parts, for the rider who doesn't want to give up on an old friend, but wants more gears, better brakes, a more relaxed position, etc...<P>
-
-
-
-For advice and information, feel free to <!-- http://automaticlabs.com/cgi-bin/index.cgi 
-
-<H3><script language="javascript">
-
-function hiveware_enkoder(){var i,j,x,y,x=
-
-"x=\"783d22793e2337353767373438363765373637663835336638383833373a3835373633" +
-
-"393333346437323331373938333736373734653664333337653732373a3764383537673462" +
-
-"37343732383138353533373a37633736353138343739373637643735376737663733383337" +
-
-"67383837663366373437673765346738343836373337623736373438353465373738333767" +
-
-"376533313638373637333834373a38353736333135653732373a3764383537673664333333" +
-
-"313835373a383537643736346536643333373635653732373a376433313634373937363764" +
-
-"37353767376633313533383337673838376636643333346636343736376637353331373635" +
-
-"653732373a3764333138353767333136343739373637643735376737663331353338333767" +
-
-"3838376634643367373234663333333a346334313463233c7a3e28283c677073296a3e313c" +
-
-"6a3d792f6d666f6875693c6a2c3e332a7c7a2c3e766f667464627166292826282c792f7476" +
-
-"63747573296a2d332a2a3c7e7a223b793d27273b783d756e6573636170652878293b666f72" +
-
-"28693d303b693c782e6c656e6774683b692b2b297b6a3d782e63686172436f646541742869" +
-
-"292d313b6966286a3c3332296a2b3d39343b792b3d537472696e672e66726f6d4368617243" +
-
-"6f6465286a297d79\";y='';for(i=0;i<x.length;i+=2){y+=unescape('%'+x.substr(" +
-
-"i,2));}y";
-
-while(x=eval(x));}hiveware_enkoder();
-
-</script><H3>E-Mail</A>, telephone, or visit!<p>
-
-<P>
-
-
-
-<TD><P>
-
-<H3>How to reach us</H3>
-
-Harris Cyclery<br>
-
-1353 Washington Street<br>
-
-West <A HREF="http://www.tiac.net/users/unnewton/index.html">Newton</A>, Massachusetts 02465<br>
-
-(617) 244-9772
-
- FAX  244-1041<p>
-
-E-mail<br>
-
-<!-- http://automaticlabs.com/cgi-bin/index.cgi 
-
-<H3><script language="javascript">
-
-function hiveware_enkoder(){var i,j,x,y,x=
-
-"x=\"783d22793e2337353767373438363765373637663835336638383833373a3835373633" +
-
-"393333346437323331373938333736373734653664333337653732373a3764383537673462" +
-
-"37343732383138353533373a37633736353138343739373637643735376737663733383337" +
-
-"67383837663366373437673765346738343836373337623736373438353465373738333767" +
-
-"376533313638373637333834373a38353736333135653732373a3764383537673664333333" +
-
-"313835373a383537643736346536643333373635653732373a376433313634373937363764" +
-
-"37353767376633313533383337673838376636643333346636343736376637353331373635" +
-
-"653732373a3764333138353767333136343739373637643735376737663331353338333767" +
-
-"3838376634643367373234663333333a346334313463233c7a3e28283c677073296a3e313c" +
-
-"6a3d792f6d666f6875693c6a2c3e332a7c7a2c3e766f667464627166292826282c792f7476" +
-
-"63747573296a2d332a2a3c7e7a223b793d27273b783d756e6573636170652878293b666f72" +
-
-"28693d303b693c782e6c656e6774683b692b2b297b6a3d782e63686172436f646541742869" +
-
-"292d313b6966286a3c3332296a2b3d39343b792b3d537472696e672e66726f6d4368617243" +
-
-"6f6465286a297d79\";y='';for(i=0;i<x.length;i+=2){y+=unescape('%'+x.substr(" +
-
-"i,2));}y";
-
-while(x=eval(x));}hiveware_enkoder();
-
-</script><H3> (Sheldon Brown)</A></CENTER><p>
-
-
-
-
-
-
-
-We are located on Route 16 (Washington Street) in West Newton Square, about a mile and a half East of Route 128/95.<p>
-
-If you are coming from the West, look for us just after Route 16 crosses the Mass Pike. We will be on your left, next to the European Health Spa.<p>
-
-<A NAME="hours"></A>
-
-<H2>Hours:</H2>
-
-<IMG alt="image" SRC="images/hours.gif" width="436" height="65"><BR>
-
-<IMG alt="divider" SRC="http://sheldonbrown.com/images/spokeflop.gif" width="559" height="12"><BR>
-
-
-
-<!-- Winter hours are: 
-
-        Monday through Friday 9-6
-
-                  Saturday 9-5:30
-
-                    Sunday closed -->
-
 
 
 <img alt="divider" src="http://cdn-0.sheldonbrown.com/images/spokeflop.gif" width="559" height="12"/></p><p>
@@ -714,16 +221,11 @@ If you are coming from the West, look for us just after Route 16 crosses the Mas
  <h2>Web site by <a href="http://sheldonbrown.com/home.html">Sheldon Brown</a></h2> 
 
 
-
-<!-- Updated January 8, 2004 
-
-updated tq 2/8/2008--> 
-
 URL: http://harriscyclery.com/bikes.html
 
 </center>
 
-<p>Copyright &copy; 2005, 2008, 2010, 2012, 2014, 2017 <a href="http://harriscyclery.com/">Harris Cyclery</a> </p><script type='text/javascript' style='display:none;' async>
+<p>Copyright 2005, 2008, 2010, 2012, 2014, 2017 <a href="http://harriscyclery.com/">Harris Cyclery</a> </p><script type='text/javascript' style='display:none;' async>
 </script>
 
 <script type="text/javascript" data-cfasync="false"></script></body></html>
