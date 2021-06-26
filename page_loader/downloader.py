@@ -77,7 +77,8 @@ def download(url: str, folder: Optional[str] = None) -> str:
                     )
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
-                    object_[key] = save_file(item_content, downloads_folder, item_file_name)  # noqa: E501
+                    save_file(item_content, downloads_folder, item_file_name)
+                    object_[key] = '/'.join((downloads_folder, item_file_name))
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
