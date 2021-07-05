@@ -1,6 +1,7 @@
 .venv
 .vscode
 .idea
+.DS_Store
 *.swp
 dist
 __pycache__
