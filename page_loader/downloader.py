@@ -6,6 +6,7 @@ import re
 from types import MappingProxyType
 from typing import Union, Optional
 from urllib.parse import urlparse, urljoin
+from progress.bar import Bar   # type: ignore
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
@@ -23,6 +24,26 @@ DOWNLOAD_OBJECTS = MappingProxyType({
     'link': ('href', False),
     'script': ('src', False),
 })
+
+
+def count_files_to_download(soup: BeautifulSoup, url: str) -> int:  # noqa: WPS210
+    """
+    Count number of files to be downloaded.
+
+    Args:
+        soup: BeautifulSoup of the page
+        url: home url to check is_local
+
+    Returns:
+        Count of files to be downloaded.
+    """
+    count = 0
+    for download_object, (key, always_download) in DOWNLOAD_OBJECTS.items():
+        for object_ in soup.find_all(download_object):
+            item_link = object_.get(key)
+            if item_link and (always_download or is_local(item_link, url)):
+                count += 1
+    return count
 
 
 def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS238, WPS210, WPS213, WPS231
@@ -80,6 +101,7 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
     page_code = page.text
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
+    progress_bar = Bar('Downloading', max=count_files_to_download(soup, url))
     for download_object, (key, always_download) in DOWNLOAD_OBJECTS.items():
         for object_ in soup.find_all(download_object):
             item_link = object_.get(key)
@@ -98,6 +120,9 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
                     logging.debug(f'Downloaded object: {object_}\n{url}')
                     save_file(item_content, downloads_folder, item_file_name)
                     object_[key] = '/'.join((downloads_folder, item_file_name))
+                finally:
+                    progress_bar.next()  # noqa: B305
+    progress_bar.finish()
     file_name = make_name(url, '.html')
     file_path = save_file(soup.encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
