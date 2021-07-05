@@ -22,3 +22,6 @@ Educational project to build a program that saves web-page locally.
 
 ## Human friendly error messages
 [![CLI interface](https://img.youtube.com/vi/XYtYlKlboPw/0.jpg)](https://youtu.be/XYtYlKlboPw "Step 5")]
+
+## Download progress bar
+[![CLI interface](https://img.youtube.com/vi/5xXe3Rolcv8/0.jpg)](https://youtu.be/5xXe3Rolcv8 "Step 6")]
