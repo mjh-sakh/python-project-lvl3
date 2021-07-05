@@ -1,6 +1,7 @@
 import pytest
 
-from page_loader.downloader import is_absolute, make_name, is_local
+from page_loader.downloader import make_name
+from page_loader.url_utilities import is_local, is_absolute
 
 
 @pytest.mark.parametrize("tested_link, result", [

@@ -5,11 +5,12 @@ import os
 import re
 from types import MappingProxyType
 from typing import Union, Optional
-from urllib.parse import urlparse, urljoin
-from progress.bar import Bar   # type: ignore
 
 import requests
 from bs4 import BeautifulSoup  # type: ignore
+from progress.bar import Bar  # type: ignore
+
+from page_loader.url_utilities import is_local, convert_to_absolute
 
 SYSTEM_EXIT_CODES = MappingProxyType({
     'connection_bad_url': 10,
@@ -128,56 +129,6 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
     if working_in_sub_folder_flag:
         os.chdir('..')
     return file_path
-
-
-def is_local(link: str, local_link: str) -> bool:
-    """
-    Check if link is local to referred page.
-
-    Args:
-        link: link to be checked, str
-        local_link: referred local page, str
-
-    Returns:
-        True if local, otherwise False
-    """
-    parse = urlparse(link)
-    if not parse.netloc:
-        return True
-    parse_local = urlparse(local_link)
-    return parse.netloc in {parse_local.netloc, f'www.{parse_local.netloc}'}
-
-
-def is_absolute(link: str) -> bool:
-    """
-    Check if scheme is present in the link.
-
-    Args:
-        link: link to be checked.
-
-    Returns:
-        True if scheme is present and therefore absolute.
-    """
-    return bool(re.search('//', link))
-
-
-def convert_to_absolute(url: str, page_url: str) -> str:
-    """
-    Check if link relative and convert it to absolute if it is.
-
-    Args:
-        url: url to be converted, str
-        page_url: home url as reference to make absolute link, str
-
-    Returns:
-        Original link if it was absolute.
-        New link with scheme and netlok if it was relative.
-    """
-    if is_absolute(url):
-        absolute_url = url
-    else:
-        absolute_url = urljoin(page_url, url)
-    return absolute_url
 
 
 def download_content(file_url: str) -> bytes:
