@@ -126,7 +126,7 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
                     progress_bar.next()  # noqa: B305
     progress_bar.finish()
     file_name = make_name(url, '.html')
-    file_path = save_file(soup.encode(), os.getcwd(), file_name)
+    file_path = save_file(soup.prettify(formatter='html5').encode(), os.getcwd(), file_name)
     if working_in_sub_folder_flag:
         os.chdir('..')
     return file_path
