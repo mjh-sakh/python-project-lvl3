@@ -15,12 +15,6 @@ lint:
 reps:
 	poetry show --tree
 
-run:
-
-
-run_help:
-
-
 test:
 	poetry run mypy page_loader
 	poetry run pytest
