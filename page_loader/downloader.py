@@ -126,10 +126,11 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
                     progress_bar.next()  # noqa: B305
     progress_bar.finish()
     file_name = make_name(url, '.html')
-    file_path = save_file(soup.prettify(formatter='html5').encode(), os.getcwd(), file_name)
-    if working_in_sub_folder_flag:  # TODO: avoid chdir in logic at all
-        os.chdir(original_cwd)
-    return file_path
+    return save_file(
+        soup.prettify(formatter='html5').encode(),
+        os.getcwd(),
+        file_name,
+    )
 
 
 def download_content(file_url: str) -> bytes:
