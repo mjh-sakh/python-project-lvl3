@@ -74,11 +74,6 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
         err_message = f"Folder doesn't exist: {folder}"
         logging.error(err_message)
         raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
-    working_in_sub_folder_flag = False
-    if folder is not None:  # TODO: avoid chdir in logic at all
-        original_cwd = os.getcwd()
-        os.chdir(folder)
-        working_in_sub_folder_flag = True
     if not os.access('.', os.W_OK):
         err_message = "Don't have write access."
         logging.error(err_message)
@@ -121,7 +116,11 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
                     )
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
-                    save_file(item_content, downloads_folder, item_file_name)
+                    save_file(
+                        item_content,
+                        os.path.join(folder, downloads_folder),
+                        item_file_name,
+                    )
                     object_[key] = '/'.join((downloads_folder, item_file_name))
                 finally:
                     progress_bar.next()  # noqa: B305
