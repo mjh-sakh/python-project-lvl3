@@ -75,7 +75,8 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
         logging.error(err_message)
         raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
     working_in_sub_folder_flag = False
-    if folder is not None:
+    if folder is not None:  # TODO: avoid chdir in logic at all
+        original_cwd = os.getcwd()
         os.chdir(folder)
         working_in_sub_folder_flag = True
     if not os.access('.', os.W_OK):
@@ -127,8 +128,8 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
     progress_bar.finish()
     file_name = make_name(url, '.html')
     file_path = save_file(soup.prettify(formatter='html5').encode(), os.getcwd(), file_name)
-    if working_in_sub_folder_flag:
-        os.chdir('..')
+    if working_in_sub_folder_flag:  # TODO: avoid chdir in logic at all
+        os.chdir(original_cwd)
     return file_path
 
 
