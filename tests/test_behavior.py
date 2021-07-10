@@ -76,8 +76,9 @@ def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog, requests_mock):
     requests_mock.get(url=mock_ANY, text="test")  # for src
     requests_mock.get(page_url, text=read_text(locate(f'original_{core_name}.html')))  # for page
-    subfolder = 'subfolder'
-    os.mkdir(subfolder)
+    os.mkdir('level1')
+    os.mkdir('level1//level2')
+    subfolder = os.path.join('level1', 'level2')
     file_path = download(page_url, subfolder)
     files_folder_name = f'{core_name}_files'
     full_path = os.path.join(subfolder, files_folder_name)
