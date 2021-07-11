@@ -11,7 +11,7 @@ def main():
     try:
         file_path = download(
             args.url,
-            args.folder,
+            args.output,
         )
     except Exception as ex:
         sys.exit(ex.args[-1])
