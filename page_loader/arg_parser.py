@@ -23,7 +23,7 @@ def get_parser() -> argparse.ArgumentParser:
         prog='page-loader',
     )
     parser.add_argument('url', help='Page address.')
-    parser.add_argument(
+    parser.add_argument(  # noqa: WPS317
         '-V', '--version',
         help='Show version number.',
         action='version',
