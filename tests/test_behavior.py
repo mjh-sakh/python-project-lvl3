@@ -68,9 +68,8 @@ def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
 
 
 @pytest.mark.parametrize("page_url, core_name, expected_names", [
-    # ("https://sheldonbrown.com/harris/bikes.html", "sheldonbrown-com-harris-bikes", "sheldonbrown-com-harris-bikes-files.txt"),  # absolute links
-    # ("http://hpmor.com", "hpmor-com", "hpmor-com-files.txt"),  # relative links
-    ('http://hexlet.io/courses', 'hexlet-io-courses', 'hexlet-io-courses-files.txt')
+    ('http://hexlet.io/courses', 'hexlet-io-courses', 'hexlet-io-courses-files.txt'),
+    ('http://test.ru/foo/bar.html', 'test-ru-foo-bar', 'test-ru-foo-bar-files.txt'),
 ])
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog, requests_mock):
     requests_mock.get(url=mock_ANY, text="test")  # for src

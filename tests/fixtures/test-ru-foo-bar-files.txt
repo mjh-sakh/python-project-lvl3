@@ -1,0 +1,3 @@
+test-ru-foo-test.html
+test-ru-sub-test.html
+test-ru-foo-sub-test.html
