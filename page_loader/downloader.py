@@ -10,15 +10,8 @@ import requests
 from bs4 import BeautifulSoup  # type: ignore
 from progress.bar import Bar  # type: ignore
 
+from page_loader import SYSTEM_EXIT_CODES
 from page_loader.url_utilities import is_local, convert_to_absolute, check_url_and_get_code
-
-SYSTEM_EXIT_CODES = MappingProxyType({
-    'connection_bad_url': 10,
-    'connection_bad_response': 11,
-    'connection_other': 19,
-    'file_not_found': 20,
-    'file_permission': 21,
-})
 
 DOWNLOAD_OBJECTS = MappingProxyType({
     'img': ('src', True),

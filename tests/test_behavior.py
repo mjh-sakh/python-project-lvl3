@@ -8,8 +8,7 @@ from bs4 import BeautifulSoup as bs
 from requests import exceptions
 from requests_mock import ANY as mock_ANY
 
-from page_loader import download
-from page_loader.downloader import SYSTEM_EXIT_CODES
+from page_loader import download, SYSTEM_EXIT_CODES
 
 PROJECT_FOLDER = os.getcwd()
 TEST_FOLDER = "tests"

@@ -5,7 +5,7 @@ from urllib.parse import urlparse, urljoin
 
 import requests
 
-from page_loader.downloader import SYSTEM_EXIT_CODES
+from page_loader import SYSTEM_EXIT_CODES
 
 
 def is_local(link: str, local_link: str) -> bool:
