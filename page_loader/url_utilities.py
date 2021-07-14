@@ -1,7 +1,11 @@
 """Utilities to work with URL."""
-
+import logging
 import re
 from urllib.parse import urlparse, urljoin
+
+import requests
+
+from page_loader.downloader import SYSTEM_EXIT_CODES
 
 
 def is_local(link: str, local_link: str) -> bool:
@@ -52,3 +56,38 @@ def convert_to_absolute(url: str, page_url: str) -> str:
     else:
         absolute_url = urljoin(page_url, url)
     return absolute_url
+
+
+def check_url_and_get_code(url: str) -> str:
+    """
+    Check url to be valid and return it's content as txt.
+
+    Args:
+        url: page url, str
+
+    Returns:
+        Page content.
+
+    Raises:
+        ConnectionError: page is bad.
+    """
+    if not re.search('//', url):
+        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')
+        url = f'http://{url}'
+    try:  # noqa:WPS229 second line is needed for raising HTTPerror
+        page = requests.get(url)
+        page.raise_for_status()
+    except requests.exceptions.HTTPError as http_err:
+        err_message = f'Was not able to load page. Aborted.\n\tReturned error was: {http_err}.'
+        logging.error(err_message)
+        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
+    except requests.exceptions.ConnectionError as ex:
+        logging.debug(ex)
+        err_message = f'Invalid url: {url}. Aborted.'
+        logging.error(err_message)
+        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex
+    except Exception as ex:
+        err_message = 'Some other error arose. Aborted.'
+        logging.error(err_message, exc_info=True)
+        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex
+    return page.text

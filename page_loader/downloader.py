@@ -10,7 +10,7 @@ import requests
 from bs4 import BeautifulSoup  # type: ignore
 from progress.bar import Bar  # type: ignore
 
-from page_loader.url_utilities import is_local, convert_to_absolute
+from page_loader.url_utilities import is_local, convert_to_absolute, check_url_and_get_code
 
 SYSTEM_EXIT_CODES = MappingProxyType({
     'connection_bad_url': 10,
@@ -61,43 +61,12 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
 
     Returns:
         Address of saved page.
-
-    Raises:
-          ConnectionError: cannot get reguested page.
-          FileNotFoundError: specified folder doesn't exist.
-          PermissionError: do not have write access.
     """
     logging.debug(f'Download requested for url: {url}')
     if folder is None:
         folder = os.getcwd()
-    if not os.path.exists(folder):
-        err_message = f"Folder doesn't exist: {folder}"
-        logging.error(err_message)
-        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
-    if not os.access('.', os.W_OK):
-        err_message = "Don't have write access."
-        logging.error(err_message)
-        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
-    if not re.search('//', url):
-        logging.warning(f'Looks that schema is missed in "{url}", added "http://" and continue.')
-        url = f'http://{url}'
-    try:
-        page = requests.get(url)
-        page.raise_for_status()
-    except requests.exceptions.HTTPError as http_err:
-        err_message = f'Was not able to load page. Aborted.\n\tReturned error was: {http_err}.'
-        logging.error(err_message)
-        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
-    except requests.exceptions.ConnectionError as ex:
-        logging.debug(ex)
-        err_message = f'Invalid url: {url}. Aborted.'
-        logging.error(err_message)
-        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex
-    except Exception as ex:
-        err_message = 'Some other error arose. Aborted.'
-        logging.error(err_message, exc_info=True)
-        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex
-    page_code = page.text
+    check_environment(folder)
+    page_code = check_url_and_get_code(url)
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
     progress_bar = Bar('Downloading', max=count_files_to_download(soup, url))
@@ -131,6 +100,27 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
         folder=folder,
         file_name=make_name(url, '.html'),
     )
+
+
+def check_environment(folder: str) -> None:
+    """
+    Check that folder and wright access are present.
+
+    Args:
+        folder: folder name, str
+
+    Raises:
+        FileNotFoundError: specified folder doesn't exist.
+        PermissionError: do not have write access.
+    """
+    if not os.path.exists(folder):
+        err_message = f"Folder doesn't exist: {folder}"
+        logging.error(err_message)
+        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
+    if not os.access('.', os.W_OK):
+        err_message = "Don't have write access."
+        logging.error(err_message)
+        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
 
 
 def download_content(file_url: str) -> bytes:
