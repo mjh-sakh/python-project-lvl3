@@ -54,10 +54,10 @@ def convert_to_absolute(url: str, page_url: str) -> str:
     if is_absolute(url):
         absolute_url = url
     else:
-        absolute_url = urljoin(
-            page_url if page_url[-1] == '/' else f'{page_url}/',
-            url,
-        )
+        if re.search(r'/\w+\.\w+$', page_url):  # finds .html like ending
+            absolute_url = urljoin(page_url, url)
+        else:
+            absolute_url = urljoin(f'{page_url}/', url)
     return absolute_url
 
 
