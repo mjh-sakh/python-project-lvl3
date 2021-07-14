@@ -1,5 +1,5 @@
 hexlet-io-assets-application.css
 hexlet-io-assets-professions-nodejs.png
-hexlet-io-courses.html
+hexlet-io-courses-courses.html
 hexlet-io-packs-js-runtime.js
 hexlet-io-courses-some-resource.html

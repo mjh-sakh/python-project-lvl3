@@ -1,14 +1,17 @@
 import logging
 import os
+import random
 import tempfile
 from pathlib import Path
 
 import pytest
+import requests
 from bs4 import BeautifulSoup as bs
 from requests import exceptions
 from requests_mock import ANY as mock_ANY
 
 from page_loader import download, SYSTEM_EXIT_CODES
+from page_loader.downloader import make_name
 
 PROJECT_FOLDER = os.getcwd()
 TEST_FOLDER = "tests"
@@ -25,6 +28,12 @@ def read_text(file: str):
     with open(file, encoding='utf-8') as f:
         text = f.read()
     return text
+
+
+def mock_fingerprint(run_id: int):
+    def make_fingerprint(request: requests.Request, _):
+        return f'{make_name(request.url)}-{run_id}'
+    return make_fingerprint
 
 
 @pytest.fixture
@@ -64,7 +73,8 @@ def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
 ])
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog, requests_mock):
     caplog.set_level(logging.DEBUG)
-    requests_mock.get(url=mock_ANY, text="test")  # for src
+    test_run_id = random.randint(0, 10_000)
+    requests_mock.get(url=mock_ANY, text=mock_fingerprint(test_run_id))  # for src
     requests_mock.get(page_url, text=read_text(locate(f'original_{core_name}.html')))  # for page
     os.mkdir('level1')
     os.mkdir('level1//level2')
@@ -73,12 +83,14 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     files_folder_name = f'{core_name}_files'
     full_path = os.path.join(subfolder, files_folder_name)
     assert os.path.isdir(full_path)
+    assert bs(read_text(file_path), features="html.parser").prettify() == bs(read_text(locate(f'saved_{core_name}.html')), features="html.parser").prettify()
     saved_names_list = os.listdir(full_path)
     with open(locate(expected_names)) as f:
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
-    assert bs(read_text(file_path), features="html.parser").prettify() == bs(read_text(locate(f'saved_{core_name}.html')), features="html.parser").prettify()
-
+    for name in expected_names_list:
+        # assert os.path.isfile(os.path.join(full_path, name))
+        assert read_text(os.path.join(full_path, name)) == f'{name}-{test_run_id}'
 
 @pytest.mark.parametrize("url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs", [
     ('abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_bad_url'], {'url': 'http://abracadabra/', 'exc': exceptions.ConnectionError}),
