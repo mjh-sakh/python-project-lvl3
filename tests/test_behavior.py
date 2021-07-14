@@ -45,16 +45,7 @@ def test_download(temp_folder, page_url, expected_file, requests_mock):
     folder_path, file_name = os.path.split(file_path)
     assert Path(folder_path).resolve() == Path(temp_folder).resolve()
     assert file_name == expected_file
-    assert bs(read_text(file_path)).prettify() == bs(read_text(locate(expected_file))).prettify()
-
-
-# @pytest.mark.parametrize("page_url, sub_folder", [
-#     ("https://sheldonbrown.com/harris/bikes.html", "test"),
-# ])
-# def test_download_creates_folder(temp_folder, sub_folder, page_url):
-#     save_folder = os.path.join(temp_folder, sub_folder)
-#     file_path = download(page_url, save_folder)
-#     assert os.path.isdir(save_folder)
+    assert bs(read_text(file_path), features="html.parser").prettify() == bs(read_text(locate(expected_file)), features="html.parser").prettify()
 
 
 @pytest.mark.parametrize("page_url", [
@@ -72,6 +63,7 @@ def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
     ('http://test.ru/foo/bar.html', 'test-ru-foo-bar', 'test-ru-foo-bar-files.txt'),
 ])
 def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog, requests_mock):
+    caplog.set_level(logging.DEBUG)
     requests_mock.get(url=mock_ANY, text="test")  # for src
     requests_mock.get(page_url, text=read_text(locate(f'original_{core_name}.html')))  # for page
     os.mkdir('level1')
@@ -85,7 +77,7 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     with open(locate(expected_names)) as f:
         expected_names_list = [line.rstrip() for line in f]
     assert sorted(saved_names_list) == sorted(expected_names_list)
-    assert bs(read_text(file_path)).prettify() == bs(read_text(locate(f'saved_{core_name}.html'))).prettify()
+    assert bs(read_text(file_path), features="html.parser").prettify() == bs(read_text(locate(f'saved_{core_name}.html')), features="html.parser").prettify()
 
 
 @pytest.mark.parametrize("url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs", [
