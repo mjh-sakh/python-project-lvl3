@@ -92,6 +92,7 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
         # assert os.path.isfile(os.path.join(full_path, name))
         assert read_text(os.path.join(full_path, name)) == f'{name}-{test_run_id}'
 
+
 @pytest.mark.parametrize("url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs", [
     ('abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_bad_url'], {'url': 'http://abracadabra/', 'exc': exceptions.ConnectionError}),
     ('ya.ru/abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_bad_response'], {'url': 'http://ya.ru/abracadabra', 'status_code': 404}),
