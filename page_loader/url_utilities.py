@@ -91,6 +91,7 @@ def check_url_and_get_code(url: str) -> str:
         raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex
     except Exception as ex:
         err_message = 'Some other error arose. Aborted.'
-        logging.error(err_message, exc_info=True)
+        logging.debug('Unknown error:', exc_info=True)
+        logging.error(err_message, exc_info=False)
         raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex
     return page.text

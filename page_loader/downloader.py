@@ -74,9 +74,8 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
                 except ConnectionError as ex:  # noqa: WPS440
                     logging.warning(f'Exception raised when saving {item_link}\n\t{ex.args[0]}')
                 except Exception:
-                    logging.warning(
-                        f'Exception raised when saving {item_link}', exc_info=True,
-                    )
+                    logging.debug('Unknown error:', exc_info=True)
+                    logging.warning(f'Exception raised when saving {item_link}')
                 else:
                     logging.debug(f'Downloaded object: {object_}\n{url}')
                     save_file(
