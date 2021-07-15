@@ -9,6 +9,7 @@ from typing import Union, Optional
 import requests
 from bs4 import BeautifulSoup  # type: ignore
 from progress.bar import Bar  # type: ignore
+from urllib.parse import urlparse
 
 from page_loader import SYSTEM_EXIT_CODES
 from page_loader.url_utilities import is_local, convert_to_absolute, check_url_and_get_code
@@ -184,21 +185,12 @@ def make_name(  # noqa: WPS210
     Returns:
         Name string.
     """
-    scheme = re.match('.+//', url)
-    trimmed_url = url[len(scheme[0]):] if scheme else url
-    trimmed_url = trimmed_url.strip('/')
-
-    # Regex explanation: two conditions with OR
-    # first: (?<=//).+/\S+(\.\w+)$
-    #   if there is // in the line,
-    #   consider (\.\w+) template only if there is '/' between it and //
-    # or second: ^(?:(?!//).)*?(\.\w+)$
-    #   if there is no // in the line
-    #   take (\.\w+) template at the end of the line
-    match = re.search(r'(?<=//).+/\S+(\.\w+)$|^(?:(?!//).)*?(\.\w+)$', url)
+    url_parts = urlparse(url)
+    core_url = url_parts.netloc + url_parts.path
+    trimmed_url = core_url.strip('/')
+    match = re.search(r'/.+(\.\w+)$', trimmed_url)
     if match:
-        group1, group2 = match.groups()
-        ending = group1 or group2
+        ending = match.group(1)
         trimmed_url = trimmed_url[:-len(ending)]
     else:
         ending = default_extension
