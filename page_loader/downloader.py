@@ -41,7 +41,7 @@ def count_files_to_download(soup: BeautifulSoup, url: str) -> int:  # noqa: WPS2
     return count
 
 
-def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS210, WPS231
+def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS210, WPS213, WPS231
     """
     Download page, including images and local content of link and script.
 
