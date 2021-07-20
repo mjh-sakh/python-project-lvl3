@@ -2,6 +2,7 @@ import logging
 import os
 import random
 import tempfile
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -42,6 +43,12 @@ def temp_folder():
         os.chdir(temp_folder)
         yield temp_folder
         os.chdir(PROJECT_FOLDER)
+
+
+@pytest.fixture(scope='session')
+def build_project():
+    subprocess.run(['make', 'build'])
+    subprocess.run(['make', 'install'])
 
 
 @pytest.mark.parametrize("page_url, expected_file", [
@@ -99,16 +106,17 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
     ('httppp://ya.ru/abracadabra', None, ConnectionError, SYSTEM_EXIT_CODES['connection_err'], {'url': 'httppp://ya.ru/abracadabra', 'exc': exceptions.InvalidSchema}),
     ('http://hexlet.io', 'test', FileNotFoundError, SYSTEM_EXIT_CODES['file_sys_err'], {'url': 'http://hexlet.io', 'text': 'test'}),
 ])
-def test_download_raises_and_exits(temp_folder, url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs, caplog, requests_mock):
+def test_download_raises_and_exits(caplog, requests_mock,
+                                   build_project, temp_folder,
+                                   url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs):
     caplog.set_level(logging.DEBUG)
     requests_mock.get(**mock_kwargs)
     with pytest.raises(expected_ex_type):
         download(url, folder)
-    # TODO: add CLI run tests
-    # with pytest.raises(SystemExit) as ex_info:
-    #     sys.argv.append(url)
-    #     page_loader.main()
-    # assert ex_info.value.code == expected_sys_exit_code
+    if folder is None:
+        os.mkdir('tmp')
+    complete_run = subprocess.run(['page-loader', '-o', folder or 'tmp', url])
+    assert complete_run.returncode == expected_sys_exit_code
 
 
 @pytest.mark.parametrize("url, folder, expected_log_message, mock_kwargs", [
