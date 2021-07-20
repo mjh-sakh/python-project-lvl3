@@ -54,7 +54,7 @@ def build_project():
 @pytest.mark.parametrize("page_url, expected_file", [
     ("https://sheldonbrown.com/harris/bikes.html", "sheldonbrown-com-harris-bikes.html"),
 ])
-def test_download(temp_folder, page_url, expected_file, requests_mock):
+def test_download(requests_mock, temp_folder, page_url, expected_file):
     requests_mock.get(page_url, text=read_text(locate(expected_file)))
     file_path = download(page_url, temp_folder)
     assert os.path.isfile(file_path)
@@ -67,7 +67,7 @@ def test_download(temp_folder, page_url, expected_file, requests_mock):
 @pytest.mark.parametrize("page_url", [
     "https://sheldonbrown.com/harris/bikes.html",
 ])
-def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
+def test_download_defaults_to_cwd(requests_mock, temp_folder, page_url):
     requests_mock.get(page_url, text="test")
     file_path = download(page_url)
     folder_path = os.path.dirname(file_path)
@@ -78,7 +78,9 @@ def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
     ('http://hexlet.io/courses', 'hexlet-io-courses', 'hexlet-io-courses-files.txt'),
     ('http://test.ru/foo/bar.html', 'test-ru-foo-bar', 'test-ru-foo-bar-files.txt'),
 ])
-def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, caplog, requests_mock):
+def test_download_saves_imgs(caplog, requests_mock,
+                             temp_folder,
+                             page_url, core_name, expected_names):
     caplog.set_level(logging.DEBUG)
     test_run_id = random.randint(0, 10_000)
     requests_mock.get(url=mock_ANY, text=mock_fingerprint(test_run_id))  # for src
@@ -127,7 +129,9 @@ def test_download_raises_and_exits(caplog, requests_mock,
     ('abracadabra', None, 'Invalid url', {'url': 'http://abracadabra/', 'exc': exceptions.ConnectionError}),
     ('ya.ru', None, 'Some other error arose', {'url': 'http://ya.ru', 'exc': exceptions.Timeout}),
 ])
-def test_download_writes_log(temp_folder, url, folder, expected_log_message, mock_kwargs, caplog, requests_mock):
+def test_download_writes_log(caplog, requests_mock,
+                             temp_folder,
+                             url, folder, expected_log_message, mock_kwargs):
     requests_mock.get(**mock_kwargs)
     caplog.set_level(logging.DEBUG)
     try:
