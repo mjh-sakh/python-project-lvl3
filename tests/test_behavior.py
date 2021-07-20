@@ -58,7 +58,7 @@ def test_download(temp_folder, page_url, expected_file, requests_mock):
 
 
 @pytest.mark.parametrize("page_url", [
-    ("https://sheldonbrown.com/harris/bikes.html"),
+    "https://sheldonbrown.com/harris/bikes.html",
 ])
 def test_download_defaults_to_cwd(temp_folder, page_url, requests_mock):
     requests_mock.get(page_url, text="test")
@@ -102,14 +102,13 @@ def test_download_saves_imgs(temp_folder, page_url, core_name, expected_names, c
 def test_download_raises_and_exits(temp_folder, url, folder, expected_ex_type, expected_sys_exit_code, mock_kwargs, caplog, requests_mock):
     caplog.set_level(logging.DEBUG)
     requests_mock.get(**mock_kwargs)
-    with pytest.raises(expected_ex_type) as ex_info:
+    with pytest.raises(expected_ex_type):
         download(url, folder)
     # TODO: add CLI run tests
     # with pytest.raises(SystemExit) as ex_info:
     #     sys.argv.append(url)
     #     page_loader.main()
     # assert ex_info.value.code == expected_sys_exit_code
-
 
 
 @pytest.mark.parametrize("url, folder, expected_log_message, mock_kwargs", [
