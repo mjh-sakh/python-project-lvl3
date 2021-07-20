@@ -5,8 +5,6 @@ from urllib.parse import urlparse, urljoin
 
 import requests
 
-from page_loader import SYSTEM_EXIT_CODES
-
 
 def is_local(link: str, local_link: str) -> bool:
     """
@@ -83,15 +81,15 @@ def check_url_and_get_code(url: str) -> str:
     except requests.exceptions.HTTPError as http_err:
         err_message = f'Was not able to load page. Aborted.\n\tReturned error was: {http_err}.'
         logging.error(err_message)
-        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_response'])  # noqa: E501
+        raise ConnectionError(err_message)  # noqa: E501
     except requests.exceptions.ConnectionError as ex:
         logging.debug(ex)
         err_message = f'Invalid url: {url}. Aborted.'
         logging.error(err_message)
-        raise ConnectionError(err_message, SYSTEM_EXIT_CODES['connection_bad_url']) from ex
+        raise ConnectionError(err_message) from ex
     except Exception as ex:
         err_message = 'Some other error arose. Aborted.'
         logging.debug('Unknown error:', exc_info=True)
         logging.error(err_message, exc_info=False)
-        raise ConnectionError('Some other error arose. Aborted.', SYSTEM_EXIT_CODES['connection_other']) from ex
+        raise ConnectionError('Some other error arose. Aborted.') from ex
     return page.text

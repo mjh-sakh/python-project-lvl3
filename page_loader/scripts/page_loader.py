@@ -1,7 +1,7 @@
 # flake8: noqa
 import sys
 
-from page_loader import download
+from page_loader import download, SYSTEM_EXIT_CODES
 from page_loader.arg_parser import get_parser
 
 
@@ -13,8 +13,12 @@ def main():
             args.url,
             args.output,
         )
+    except ConnectionError:
+        sys.exit(SYSTEM_EXIT_CODES['connection_err'])
+    except OSError:
+        sys.exit(SYSTEM_EXIT_CODES['file_sys_err'])
     except Exception as ex:
-        sys.exit(ex.args[-1])
+        sys.exit(SYSTEM_EXIT_CODES['other'])
     print(file_path)
 
 

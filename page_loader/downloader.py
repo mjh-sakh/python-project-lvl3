@@ -11,7 +11,6 @@ from bs4 import BeautifulSoup  # type: ignore
 from progress.bar import Bar  # type: ignore
 from urllib.parse import urlparse
 
-from page_loader import SYSTEM_EXIT_CODES
 from page_loader.url_utilities import is_local, convert_to_absolute, check_url_and_get_code
 
 DOWNLOAD_OBJECTS = MappingProxyType({
@@ -108,11 +107,11 @@ def check_environment(folder: str) -> None:
     if not os.path.exists(folder):
         err_message = f"Folder doesn't exist: {folder}"
         logging.error(err_message)
-        raise FileNotFoundError(err_message, SYSTEM_EXIT_CODES['file_not_found'])
+        raise FileNotFoundError(err_message)
     if not os.access('.', os.W_OK):
         err_message = "Don't have write access."
         logging.error(err_message)
-        raise PermissionError(err_message, SYSTEM_EXIT_CODES['file_permission'])
+        raise PermissionError(err_message)
 
 
 def download_content(file_url: str) -> bytes:
