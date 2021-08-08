@@ -55,7 +55,7 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
         Address of saved page.
     """
     logging.debug(f'Download requested for url: {url}')
-    if folder is None:
+    if folder is None:  # needed to deal when argparse sends None from cli
         folder = os.getcwd()
     check_environment(folder)
     page_code = check_url_and_get_code(url)
