@@ -85,7 +85,7 @@ def test_download_saves_imgs(caplog, requests_mock,
     test_run_id = random.randint(0, 10_000)
     requests_mock.get(url=mock_ANY, text=mock_fingerprint(test_run_id))  # for src
     requests_mock.get(page_url, text=read_text(locate(f'original_{core_name}.html')))  # for page
-    os.mkdir('level1')
+    os.mkdir('level1')  # creating subfolders inside temp_folder to ensure proper behavior when far away from cwd
     os.mkdir('level1//level2')
     subfolder = os.path.join('level1', 'level2')
     file_path = download(page_url, subfolder)
