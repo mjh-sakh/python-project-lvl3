@@ -48,7 +48,7 @@ def temp_folder():
 @pytest.fixture(scope='session')
 def build_project():
     subprocess.run(['make', 'build'])
-    subprocess.run(['make', 'install'])
+    subprocess.run(['make', 'package-install'])
 
 
 @pytest.mark.parametrize("page_url, expected_file", [
