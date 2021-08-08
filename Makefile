@@ -17,10 +17,9 @@ reps:
 
 test:
 	poetry run mypy page_loader
-	poetry run pytest
+	poetry run coverage run -m pytest
 
 coverage:
-	poetry run coverage run -m pytest
 	poetry run coverage xml
 
 package-install:
