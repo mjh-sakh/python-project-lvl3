@@ -31,10 +31,21 @@ def read_text(file: str):
     return text
 
 
-def mock_fingerprint(run_id: int):
-    def make_fingerprint(request: requests.Request, _):
+def mock_content(run_id: int):
+    """
+    Create dynamic content for mocked downloaded file.
+
+    Content is simply a string with downloaded file name, but with random number
+    that is not known to application code being added.
+    First ensures that content is unique for each file.
+    Second ensures that download function cannot generate content in the same way.
+
+    Args:
+         run_id: random number for each test run
+    """
+    def make_content(request: requests.Request, _):
         return f'{make_name(request.url)}-{run_id}'
-    return make_fingerprint
+    return make_content
 
 
 @pytest.fixture
@@ -83,7 +94,7 @@ def test_download_saves_imgs(caplog, requests_mock,
                              page_url, core_name, expected_names):
     caplog.set_level(logging.DEBUG)
     test_run_id = random.randint(0, 10_000)
-    requests_mock.get(url=mock_ANY, text=mock_fingerprint(test_run_id))  # for src
+    requests_mock.get(url=mock_ANY, text=mock_content(test_run_id))  # for src content
     requests_mock.get(page_url, text=read_text(locate(f'original_{core_name}.html')))  # for page
     os.mkdir('level1')  # creating subfolders inside temp_folder to ensure proper behavior when far away from cwd
     os.mkdir('level1//level2')
