@@ -61,7 +61,10 @@ def download(url: str, folder: Optional[str] = None) -> str:  # noqa: C901, WPS2
     page_code = check_url_and_get_code(url)
     soup = BeautifulSoup(page_code, features='html.parser')
     downloads_folder = make_name(url, '_files')
-    progress_bar = Bar('Downloading', max=count_files_to_download(soup, url))
+    files_to_download = count_files_to_download(soup, url)
+    if files_to_download and not os.path.exists(os.path.join(folder, downloads_folder)):
+        os.mkdir(os.path.join(folder, downloads_folder))
+    progress_bar = Bar('Downloading', max=files_to_download)
     for download_object, (key, always_download) in DOWNLOAD_OBJECTS.items():
         for object_ in soup.find_all(download_object):
             item_link = object_.get(key)
@@ -147,8 +150,6 @@ def save_file(content: bytes, folder: str, file_name: str) -> str:  # noqa: WPS1
     Returns:
         Path to newly created file.
     """
-    if not os.path.exists(folder):
-        os.mkdir(folder)
     file_path = os.path.join(folder, file_name)
     with open(file_path, 'wb') as f:  # noqa: WPS111
         f.write(content)
